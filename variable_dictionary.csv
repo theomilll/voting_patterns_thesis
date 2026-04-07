@@ -1,0 +1,49 @@
+column_name,anes_code,description,category,scale
+age_group,V241008x,4-cat age group,demographic,1-4 ordinal
+sex,V241006,"Binary sex (1=Male, 2=Female)",demographic,1-2 nominal
+gender,V241004,5-cat gender identity,demographic,1-5 nominal
+race,V241501x,6-cat race/ethnicity summary,demographic,1-6 nominal
+education,V242458x,7-cat education level (post-election),demographic,1-7 ordinal
+income_bracket,V241507,4-cat household income (low quality),demographic,1-4 ordinal
+marital,V241506,3-cat marital status,demographic,1-3 nominal
+employment,V241512x,5-cat employment status,demographic,1-7 nominal
+social_class,V242337,4-cat self-reported social class,demographic,1-4 ordinal
+church_attendance,V241025,Frequency of religious attendance,demographic,1-5 ordinal
+ideology,V241179,7-pt liberal-conservative self-placement,demographic,1-7 ordinal
+hispanic,V241502,Binary Hispanic indicator,demographic,1-2 nominal
+state,V243001,State abbreviation,demographic,string
+econ_opportunity,V242311,How much opportunity to get ahead,issue_economy,1-5 ordinal
+econ_mobility,V242312,Economic mobility vs 20 years ago,issue_economy,ordinal
+econ_mobility_summary,V242314x,Economic mobility summary,issue_economy,summary
+tax_millionaires,V242316a,Favor/oppose tax on millionaires,issue_economy,favor/oppose
+deficit_importance,V242315,Importance of reducing deficit,issue_economy,ordinal
+min_wage,V242350,Should minimum wage be raised/kept/lowered,issue_economy,ordinal
+immig_level,V242232,Immigration level: increase/decrease/same,issue_immigration,1-3 ordinal
+immig_policy1,V242235,Immigration policy position 1,issue_immigration,ordinal
+immig_policy2,V242236,Immigration policy position 2,issue_immigration,ordinal
+immig_policy3,V242237,Immigration policy position 3,issue_immigration,ordinal
+gun_difficulty,V242325,Should buying guns be harder/easier,issue_guns,1-3 ordinal
+gun_background,V242328x,Favor/oppose background checks summary,issue_guns,summary
+gun_assault_ban,V242331x,Favor/oppose assault rifle ban summary,issue_guns,summary
+climate_impact,V242321,How much climate change affects weather,issue_environment,1-5 ordinal
+climate_regulation,V242324x,Favor/oppose greenhouse regulation summary,issue_environment,summary
+abortion_access,V242362,Abortion access position (3-cat),issue_abortion,1-3 ordinal
+abortion_scale,V242361x,Abortion position summary (5-pt),issue_abortion,1-5 summary
+abortion_detail,V242364x,Abortion position detail (7-pt),issue_abortion,1-7 summary
+racial_selfhelp,V242300,Blacks should work way up w/o favors,issue_racial,1-5 ordinal
+racial_slavery,V242301,Past slavery makes it harder for Blacks,issue_racial,1-5 ordinal
+racial_deserve,V242302,Blacks gotten less than deserved,issue_racial,1-5 ordinal
+racial_tryharder,V242303,"If Blacks tried harder, equal outcome",issue_racial,1-5 ordinal
+populism_insiders,V242304,System only works for insiders,issue_populism,ordinal
+populism_rich,V242305,Rich/powerful prevent others getting ahead,issue_populism,ordinal
+fairshare_summary,V242308x,Gets more/less than fair share summary,issue_populism,summary
+gender_trad_summary,V242279x,Better if man works/woman home summary,issue_gender,summary
+gender_equality,V242280,Women demanding equality seek favors,issue_gender,ordinal
+gender_discrim,V242281,Women complaining cause more problems,issue_gender,ordinal
+trade_summary,V242346x,Favor/oppose free trade summary,issue_trade,summary
+diversity_summary,V242349x,Increasing diversity better/worse summary,issue_diversity,summary
+healthcare_spending,V242353x,Govt help paying for healthcare summary,issue_healthcare,summary
+vote_choice,V242067,"Presidential vote: 1=Harris(Dem),2=Trump(Rep),4-6=Other",target,nominal
+party_id,V241227x,7-point party identification,auxiliary,1-7 ordinal
+weight_pre,V240107a,Full-sample pre-election weight,weight,continuous
+weight_post,V240108a,Post-election weight,weight,continuous
