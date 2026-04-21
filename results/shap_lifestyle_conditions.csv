@@ -1,0 +1,16 @@
+feature,mean_abs_shap,group
+media_trust,0.10487955186310717,engagement
+emotion_happy,0.08955361181023808,engagement
+econ_opportunity,0.04887712385083072,conditions
+emotion_hope,0.04826193620368971,engagement
+emotion_pride,0.035357610362842865,engagement
+emotion_anger,0.018332526005466615,engagement
+tv_the_five,0.016359966979771715,political_media
+emotion_worry,0.01509422650162597,engagement
+tv_hannity,0.0147861913858569,political_media
+tv_jesse_watters,0.01338788941906967,political_media
+tv_daily_show,0.012956083657146176,entertainment
+tv_anderson_cooper,0.01112750094722307,political_media
+campaign_interest,0.009841109224733713,engagement
+tv_gutfeld,0.009244780783717519,political_media
+tv_snl,0.008900141041662502,entertainment

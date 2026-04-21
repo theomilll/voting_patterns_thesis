@@ -1,0 +1,155 @@
+Loaded 3603 rows (Harris/Trump only)
+  Harris: 2015, Trump: 1588
+Classes: ['Harris', 'Trump']  n_classes=2
+
+--- Tuning A_actual_issues / LogisticRegression (n_trials=30) ---
+    fold 0 bal_acc=0.9282 log_loss=0.1920  inner_best=0.2168
+    fold 1 bal_acc=0.9160 log_loss=0.2165  inner_best=0.2159
+    fold 2 bal_acc=0.8839 log_loss=0.2366  inner_best=0.2110
+    fold 3 bal_acc=0.9201 log_loss=0.2004  inner_best=0.2224
+    fold 4 bal_acc=0.9276 log_loss=0.1951  inner_best=0.2265
+  >>> summary: bal_acc=0.9151 +/-0.0163  log_loss=0.2081
+
+--- Tuning A_actual_issues / RandomForest (n_trials=50) ---
+    fold 0 bal_acc=0.9203 log_loss=0.1935  inner_best=0.2056
+    fold 1 bal_acc=0.9148 log_loss=0.2116  inner_best=0.2031
+    fold 2 bal_acc=0.8986 log_loss=0.2262  inner_best=0.2009
+    fold 3 bal_acc=0.9294 log_loss=0.1989  inner_best=0.2036
+    fold 4 bal_acc=0.9361 log_loss=0.1847  inner_best=0.2119
+  >>> summary: bal_acc=0.9198 +/-0.0129  log_loss=0.2030
+
+--- Tuning A_actual_issues / XGBoost (n_trials=60) ---
+    fold 0 bal_acc=0.9347 log_loss=0.1546  inner_best=0.1888
+    fold 1 bal_acc=0.9198 log_loss=0.1978  inner_best=0.1780
+    fold 2 bal_acc=0.9087 log_loss=0.2147  inner_best=0.1806
+    fold 3 bal_acc=0.9508 log_loss=0.1695  inner_best=0.1778
+    fold 4 bal_acc=0.9405 log_loss=0.1666  inner_best=0.1933
+  >>> summary: bal_acc=0.9309 +/-0.0150  log_loss=0.1806
+
+--- Tuning C_demo_with_ideology / LogisticRegression (n_trials=30) ---
+    fold 0 bal_acc=0.8859 log_loss=0.3057  inner_best=0.3441
+    fold 1 bal_acc=0.8585 log_loss=0.3444  inner_best=0.3435
+    fold 2 bal_acc=0.8615 log_loss=0.3486  inner_best=0.3332
+    fold 3 bal_acc=0.8547 log_loss=0.3419  inner_best=0.3376
+    fold 4 bal_acc=0.8832 log_loss=0.3309  inner_best=0.3444
+  >>> summary: bal_acc=0.8688 +/-0.0131  log_loss=0.3343
+
+--- Tuning C_demo_with_ideology / RandomForest (n_trials=50) ---
+    fold 0 bal_acc=0.9057 log_loss=0.2357  inner_best=0.2808
+    fold 1 bal_acc=0.8828 log_loss=0.2904  inner_best=0.2653
+    fold 2 bal_acc=0.8766 log_loss=0.2573  inner_best=0.2735
+    fold 3 bal_acc=0.8828 log_loss=0.2875  inner_best=0.2596
+    fold 4 bal_acc=0.9111 log_loss=0.2548  inner_best=0.2742
+  >>> summary: bal_acc=0.8918 +/-0.0138  log_loss=0.2651
+
+--- Tuning C_demo_with_ideology / XGBoost (n_trials=60) ---
+    fold 0 bal_acc=0.9098 log_loss=0.2283  inner_best=0.2682
+    fold 1 bal_acc=0.8782 log_loss=0.2804  inner_best=0.2537
+    fold 2 bal_acc=0.8846 log_loss=0.2500  inner_best=0.2584
+    fold 3 bal_acc=0.9010 log_loss=0.2702  inner_best=0.2548
+    fold 4 bal_acc=0.9077 log_loss=0.2421  inner_best=0.2632
+  >>> summary: bal_acc=0.8963 +/-0.0126  log_loss=0.2542
+
+--- Tuning Cs_demo_strict / LogisticRegression (n_trials=30) ---
+    fold 0 bal_acc=0.8748 log_loss=0.3185  inner_best=0.3513
+    fold 1 bal_acc=0.8645 log_loss=0.3438  inner_best=0.3530
+    fold 2 bal_acc=0.8503 log_loss=0.3569  inner_best=0.3421
+    fold 3 bal_acc=0.8579 log_loss=0.3490  inner_best=0.3465
+    fold 4 bal_acc=0.8560 log_loss=0.3479  inner_best=0.3473
+  >>> summary: bal_acc=0.8607 +/-0.0084  log_loss=0.3432
+
+--- Tuning Cs_demo_strict / RandomForest (n_trials=50) ---
+    fold 0 bal_acc=0.9033 log_loss=0.2664  inner_best=0.3160
+    fold 1 bal_acc=0.8585 log_loss=0.3220  inner_best=0.3037
+    fold 2 bal_acc=0.8632 log_loss=0.3025  inner_best=0.3088
+    fold 3 bal_acc=0.8678 log_loss=0.3355  inner_best=0.2922
+    fold 4 bal_acc=0.8745 log_loss=0.3024  inner_best=0.3114
+  >>> summary: bal_acc=0.8735 +/-0.0158  log_loss=0.3057
+
+--- Tuning Cs_demo_strict / XGBoost (n_trials=60) ---
+    fold 0 bal_acc=0.9001 log_loss=0.2519  inner_best=0.3085
+    fold 1 bal_acc=0.8569 log_loss=0.3217  inner_best=0.2931
+    fold 2 bal_acc=0.8706 log_loss=0.2876  inner_best=0.2943
+    fold 3 bal_acc=0.8865 log_loss=0.3183  inner_best=0.2889
+    fold 4 bal_acc=0.8788 log_loss=0.2982  inner_best=0.2969
+  >>> summary: bal_acc=0.8786 +/-0.0146  log_loss=0.2955
+
+--- Tuning D_party_only / LogisticRegression (n_trials=30) ---
+    fold 0 bal_acc=0.9280 log_loss=0.2396  inner_best=0.2080
+    fold 1 bal_acc=0.9296 log_loss=0.2099  inner_best=0.2134
+    fold 2 bal_acc=0.9204 log_loss=0.2391  inner_best=0.2069
+    fold 3 bal_acc=0.9419 log_loss=0.2078  inner_best=0.2146
+    fold 4 bal_acc=0.9486 log_loss=0.1733  inner_best=0.2265
+  >>> summary: bal_acc=0.9337 +/-0.0102  log_loss=0.2139
+
+--- Tuning D_party_only / RandomForest (n_trials=50) ---
+    fold 0 bal_acc=0.9280 log_loss=0.2262  inner_best=0.2027
+    fold 1 bal_acc=0.9296 log_loss=0.2096  inner_best=0.2054
+    fold 2 bal_acc=0.9204 log_loss=0.2308  inner_best=0.2009
+    fold 3 bal_acc=0.9370 log_loss=0.1976  inner_best=0.2088
+    fold 4 bal_acc=0.9486 log_loss=0.1728  inner_best=0.2193
+  >>> summary: bal_acc=0.9327 +/-0.0095  log_loss=0.2074
+
+--- Tuning D_party_only / XGBoost (n_trials=60) ---
+    fold 0 bal_acc=0.9280 log_loss=0.2263  inner_best=0.2017
+    fold 1 bal_acc=0.9296 log_loss=0.2086  inner_best=0.2049
+    fold 2 bal_acc=0.9204 log_loss=0.2316  inner_best=0.2004
+    fold 3 bal_acc=0.9419 log_loss=0.1944  inner_best=0.2069
+    fold 4 bal_acc=0.9486 log_loss=0.1724  inner_best=0.2148
+  >>> summary: bal_acc=0.9337 +/-0.0102  log_loss=0.2066
+
+--- Tuning E_party_demo / LogisticRegression (n_trials=30) ---
+    fold 0 bal_acc=0.9298 log_loss=0.1821  inner_best=0.1769
+    fold 1 bal_acc=0.9276 log_loss=0.1910  inner_best=0.1794
+    fold 2 bal_acc=0.9318 log_loss=0.1882  inner_best=0.1756
+    fold 3 bal_acc=0.9368 log_loss=0.1900  inner_best=0.1842
+    fold 4 bal_acc=0.9388 log_loss=0.1479  inner_best=0.1926
+  >>> summary: bal_acc=0.9329 +/-0.0042  log_loss=0.1799
+
+--- Tuning E_party_demo / RandomForest (n_trials=50) ---
+    fold 0 bal_acc=0.9299 log_loss=0.1713  inner_best=0.1702
+    fold 1 bal_acc=0.9330 log_loss=0.1859  inner_best=0.1633
+    fold 2 bal_acc=0.9273 log_loss=0.1602  inner_best=0.1671
+    fold 3 bal_acc=0.9356 log_loss=0.1733  inner_best=0.1664
+    fold 4 bal_acc=0.9455 log_loss=0.1337  inner_best=0.1768
+  >>> summary: bal_acc=0.9343 +/-0.0063  log_loss=0.1649
+
+--- Tuning E_party_demo / XGBoost (n_trials=60) ---
+    fold 0 bal_acc=0.9309 log_loss=0.1637  inner_best=0.1682
+    fold 1 bal_acc=0.9369 log_loss=0.1960  inner_best=0.1566
+    fold 2 bal_acc=0.9430 log_loss=0.1606  inner_best=0.1653
+    fold 3 bal_acc=0.9282 log_loss=0.1795  inner_best=0.1617
+    fold 4 bal_acc=0.9396 log_loss=0.1401  inner_best=0.1789
+  >>> summary: bal_acc=0.9357 +/-0.0054  log_loss=0.1680
+
+--- Tuning F_issues_only / LogisticRegression (n_trials=30) ---
+    fold 0 bal_acc=0.8777 log_loss=0.2764  inner_best=0.2699
+    fold 1 bal_acc=0.9076 log_loss=0.2677  inner_best=0.2762
+    fold 2 bal_acc=0.8526 log_loss=0.3124  inner_best=0.2628
+    fold 3 bal_acc=0.8910 log_loss=0.2424  inner_best=0.2822
+    fold 4 bal_acc=0.9103 log_loss=0.2366  inner_best=0.2867
+  >>> summary: bal_acc=0.8878 +/-0.0212  log_loss=0.2671
+
+--- Tuning F_issues_only / RandomForest (n_trials=50) ---
+    fold 0 bal_acc=0.8948 log_loss=0.2828  inner_best=0.2706
+    fold 1 bal_acc=0.8893 log_loss=0.2710  inner_best=0.2749
+    fold 2 bal_acc=0.8617 log_loss=0.3120  inner_best=0.2657
+    fold 3 bal_acc=0.8875 log_loss=0.2384  inner_best=0.2830
+    fold 4 bal_acc=0.9140 log_loss=0.2453  inner_best=0.2852
+  >>> summary: bal_acc=0.8895 +/-0.0168  log_loss=0.2699
+
+--- Tuning F_issues_only / XGBoost (n_trials=60) ---
+    fold 0 bal_acc=0.8980 log_loss=0.2672  inner_best=0.2570
+    fold 1 bal_acc=0.8989 log_loss=0.2602  inner_best=0.2680
+    fold 2 bal_acc=0.8499 log_loss=0.3225  inner_best=0.2525
+    fold 3 bal_acc=0.8938 log_loss=0.2324  inner_best=0.2699
+    fold 4 bal_acc=0.9110 log_loss=0.2339  inner_best=0.2821
+  >>> summary: bal_acc=0.8903 +/-0.0210  log_loss=0.2632
+
+--- Tuning G_full_with_party / LogisticRegression (n_trials=30) ---
+    fold 0 bal_acc=0.9463 log_loss=0.1425  inner_best=0.1446
+    fold 1 bal_acc=0.9406 log_loss=0.1447  inner_best=0.1479
+    fold 2 bal_acc=0.9343 log_loss=0.1705  inner_best=0.1468
+    fold 3 bal_acc=0.9528 log_loss=0.1478  inner_best=0.1498
+    fold 4 bal_acc=0.9655 log_loss=0.1196  inner_best=0.1572
+  >>> summary: bal_acc=0.9479 +/-0.0107  log_loss=0.1450

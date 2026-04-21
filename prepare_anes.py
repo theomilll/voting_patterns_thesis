@@ -17,17 +17,23 @@ RAW_CSV = Path("anes_timeseries_2024_csv_20250808/anes_timeseries_2024_csv_20250
 OUT_DIR = Path(".")
 
 # ── Column mapping: (new_name, anes_code, description, category, scale) ──────
+# Audited 2026-04-07: all 93 V-codes verified present in raw CSV.
+# Descriptions cross-checked against ANES 2024 codebook (Aug 2025 release).
+# weight_post changed from V240108a (full-sample) to V240108b (respondent weight)
+# since the pipeline uses post-election variables exclusively.
 
 VARIABLE_MAP = [
     # === DEMOGRAPHICS ===
     ("age_group",          "V241008x",  "4-cat age group",                          "demographic", "1-4 ordinal"),
     ("sex",                "V241006",   "Binary sex (1=Male, 2=Female)",            "demographic", "1-2 nominal"),
-    ("gender",             "V241004",   "5-cat gender identity",                    "demographic", "1-5 nominal"),
+    # NOTE: V241004 is actually "political attention", not gender identity.
+    # The original mapping was incorrect. Gender identity is not available
+    # as a separate variable in this dataset (sex covers it at V241006).
     ("race",               "V241501x",  "6-cat race/ethnicity summary",             "demographic", "1-6 nominal"),
     ("education",          "V242458x",  "7-cat education level (post-election)",    "demographic", "1-7 ordinal"),
     ("income_bracket",     "V241507",   "4-cat household income (low quality)",     "demographic", "1-4 ordinal"),
     ("marital",            "V241506",   "3-cat marital status",                     "demographic", "1-3 nominal"),
-    ("employment",         "V241512x",  "5-cat employment status",                  "demographic", "1-7 nominal"),
+    ("employment",         "V241512x",  "7-cat employment status summary",          "demographic", "1-7 nominal"),
     ("social_class",       "V242337",   "4-cat self-reported social class",         "demographic", "1-4 ordinal"),
     ("church_attendance",  "V241025",   "Frequency of religious attendance",        "demographic", "1-5 ordinal"),
     ("ideology",           "V241179",   "7-pt liberal-conservative self-placement", "demographic", "1-7 ordinal"),
@@ -87,13 +93,75 @@ VARIABLE_MAP = [
     # === HEALTHCARE ===
     ("healthcare_spending", "V242353x", "Govt help paying for healthcare summary", "issue_healthcare", "summary"),
 
+    # === MEDIA & ENGAGEMENT (lifestyle proxies) ===
+    ("political_attention",  "V241004",  "How often pays attention to politics/govt",  "lifestyle", "1-5 ordinal"),
+    ("campaign_interest",    "V241005",  "How interested in following campaigns",      "lifestyle", "1-3 ordinal"),
+    ("media_trust",          "V241335",  "How much trust in news media",               "lifestyle", "1-5 ordinal"),
+
+    # Media sources used for campaign news (binary: 0=no, 1=yes)
+    ("media_tv",             "V241600a", "Used TV for campaign news",            "lifestyle", "binary"),
+    ("media_newspapers",     "V241600b", "Used newspapers for campaign news",    "lifestyle", "binary"),
+    ("media_internet",       "V241600c", "Used internet for campaign news",      "lifestyle", "binary"),
+    ("media_radio",          "V241600d", "Used radio for campaign news",         "lifestyle", "binary"),
+
+    # TV shows watched regularly — ENTERTAINMENT (cultural lifestyle signals)
+    ("tv_fbi",               "V241601a", "Watches FBI regularly",                "lifestyle_entertainment", "binary"),
+    ("tv_shark_tank",        "V241601j", "Watches Shark Tank regularly",         "lifestyle_entertainment", "binary"),
+    ("tv_ncis",              "V241601r", "Watches NCIS regularly",               "lifestyle_entertainment", "binary"),
+    ("tv_daily_show",        "V241601s", "Watches Daily Show w/ Jon Stewart",    "lifestyle_entertainment", "binary"),
+    ("tv_price_right",       "V241602h", "Watches The Price Is Right regularly", "lifestyle_entertainment", "binary"),
+    ("tv_snl",               "V241602r", "Watches Saturday Night Live regularly","lifestyle_entertainment", "binary"),
+    ("tv_dateline",          "V241602e", "Watches Dateline regularly",           "lifestyle_entertainment", "binary"),
+    ("tv_60_minutes",        "V241602c", "Watches 60 Minutes regularly",         "lifestyle_entertainment", "binary"),
+    ("tv_today",             "V241602j", "Watches Today show regularly",         "lifestyle_entertainment", "binary"),
+    ("tv_gma",               "V241602i", "Watches Good Morning America",         "lifestyle_entertainment", "binary"),
+    ("tv_2020",              "V241602d", "Watches 20/20 regularly",              "lifestyle_entertainment", "binary"),
+
+    # TV shows watched regularly — POLITICAL NEWS (left-leaning)
+    ("tv_maddow",            "V241601d", "Watches Rachel Maddow Show",           "lifestyle_political", "binary"),
+    ("tv_odonnell_last_word","V241601e", "Watches Last Word Lawrence O'Donnell", "lifestyle_political", "binary"),
+    ("tv_anderson_cooper",   "V241602a", "Watches Anderson Cooper 360",          "lifestyle_political", "binary"),
+    ("tv_chris_hayes",       "V241602n", "Watches All In with Chris Hayes",      "lifestyle_political", "binary"),
+    ("tv_pbs_newshour",      "V241602q", "Watches PBS NewsHour",                 "lifestyle_political", "binary"),
+
+    # TV shows watched regularly — POLITICAL NEWS (right-leaning)
+    ("tv_hannity",           "V241601b", "Watches Hannity regularly",            "lifestyle_political", "binary"),
+    ("tv_jesse_watters",     "V241601c", "Watches Jesse Watters Primetime",      "lifestyle_political", "binary"),
+    ("tv_the_five",          "V241601f", "Watches The Five regularly",           "lifestyle_political", "binary"),
+    ("tv_ingraham",          "V241601g", "Watches The Ingraham Angle",           "lifestyle_political", "binary"),
+    ("tv_gutfeld",           "V241601h", "Watches Gutfeld! regularly",           "lifestyle_political", "binary"),
+
+    # TV shows watched regularly — MAINSTREAM NEWS
+    ("tv_bret_baier",        "V241601k", "Watches Special Report Bret Baier",   "lifestyle_political", "binary"),
+    ("tv_david_muir",        "V241601n", "Watches World News Tonight Muir",     "lifestyle_political", "binary"),
+    ("tv_lester_holt",       "V241601p", "Watches Nightly News Lester Holt",    "lifestyle_political", "binary"),
+    ("tv_meet_press",        "V241602g", "Watches Meet the Press",              "lifestyle_political", "binary"),
+    ("tv_face_nation",       "V241602f", "Watches Face the Nation",             "lifestyle_political", "binary"),
+
+    # Websites visited regularly
+    ("web_cnn",              "V241605b", "Visits CNN regularly",                 "lifestyle_web", "binary"),
+    ("web_fox_news",         "V241605f", "Visits Fox News regularly",            "lifestyle_web", "binary"),
+    ("web_politico",         "V241605p", "Visits Politico regularly",            "lifestyle_web", "binary"),
+    ("web_breitbart",        "V241605e", "Visits Breitbart regularly",           "lifestyle_web", "binary"),
+    ("web_npr",              "V241605k", "Visits NPR News regularly",            "lifestyle_web", "binary"),
+    ("web_newsmax",          "V241605c", "Visits Newsmax regularly",             "lifestyle_web", "binary"),
+    ("web_bbc",              "V241605j", "Visits BBC News regularly",            "lifestyle_web", "binary"),
+
+    # Emotions about how things are going in the country
+    ("emotion_hope",         "V241118",  "How hopeful about country direction",  "lifestyle_emotion", "1-5 ordinal"),
+    ("emotion_fear",         "V241119",  "How afraid about country direction",   "lifestyle_emotion", "1-5 ordinal"),
+    ("emotion_anger",        "V241121",  "How angry about country direction",    "lifestyle_emotion", "1-5 ordinal"),
+    ("emotion_pride",        "V241124",  "How proud about country direction",    "lifestyle_emotion", "1-5 ordinal"),
+    ("emotion_worry",        "V241123",  "How worried about country direction",  "lifestyle_emotion", "1-5 ordinal"),
+    ("emotion_happy",        "V241122",  "How happy about country direction",    "lifestyle_emotion", "1-5 ordinal"),
+
     # === TARGET ===
     ("vote_choice", "V242067",  "Presidential vote: 1=Harris(Dem),2=Trump(Rep),4-6=Other", "target", "nominal"),
     ("party_id",    "V241227x", "7-point party identification",                   "auxiliary", "1-7 ordinal"),
 
     # === WEIGHTS ===
     ("weight_pre",  "V240107a", "Full-sample pre-election weight",  "weight", "continuous"),
-    ("weight_post", "V240108a", "Post-election weight",             "weight", "continuous"),
+    ("weight_post", "V240108b", "Post-election respondent weight",  "weight", "continuous"),
 ]
 
 
