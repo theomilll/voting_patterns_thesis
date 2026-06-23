@@ -1,0 +1,46 @@
+# System files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor state
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python cache and environments
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+
+# Local environment files
+.env
+.env.*
+
+# Logs and generated output
+*.log
+logs/
+output/
+
+# Local hidden state
+.*/
+!.gitignore
+
+# Document artifacts
+*.md
+*.doc
+*.docx
+*.gdoc
+*.gsheet
+*.gslides
+*.pdf
