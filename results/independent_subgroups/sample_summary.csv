@@ -1,0 +1,3 @@
+subgroup,party_id_values,n,weighted_n,harris_n,trump_n,harris_weight_share,trump_weight_share,target_source_counts,warnings
+pure_independents,[4],175,164.93440440440855,83,92,0.3673765431853056,0.6326234568146945,"{""early_vote"": 3, ""intent"": 141, ""preference"": 31}",small_n_under_200
+independents_plus_leaners,"[3, 4, 5]",1303,1351.3652761745966,700,603,0.5153313413556271,0.48466865864437286,"{""early_vote"": 34, ""intent"": 1142, ""preference"": 127}",

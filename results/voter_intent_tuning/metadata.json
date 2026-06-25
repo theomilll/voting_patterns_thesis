@@ -1,0 +1,1180 @@
+{
+  "baseline_candidate": "xgb_current",
+  "candidates": [
+    "xgb_current",
+    "xgb_shallow_reg",
+    "xgb_more_trees",
+    "xgb_depth4",
+    "rf_balanced",
+    "logit_elastic"
+  ],
+  "model_selection_note": "model_benchmark.csv is a non-nested benchmark. two_stage_stage2_model_results.csv tests fixed Stage 2 learner alternatives inside the demographics-to-predicted-issues voter-intent chain. Promote a variant only if the thesis accepts the methodological tradeoff versus the simplest fixed-learner feature comparison.",
+  "cv_contract": {
+    "n_folds": 5,
+    "survey_weight": "V240107a",
+    "target": "V241075x",
+    "imputation": "train-fold medians",
+    "scaling": "train-fold StandardScaler"
+  },
+  "nested_selection": {
+    "candidates": [
+      "xgb_current",
+      "xgb_shallow_reg",
+      "xgb_more_trees",
+      "xgb_depth4",
+      "rf_balanced",
+      "logit_elastic"
+    ],
+    "n_outer_folds": 5,
+    "n_inner_folds": 3,
+    "selection_metric": "mean inner weighted balanced accuracy",
+    "tie_breakers": [
+      "mean inner weighted log_loss",
+      "candidate name"
+    ]
+  },
+  "calibration": {
+    "base_candidate": "xgb_current",
+    "methods": [
+      "none",
+      "sigmoid",
+      "isotonic"
+    ],
+    "n_outer_folds": 5,
+    "n_inner_folds": 3,
+    "note": "Calibration is fit only on inner calibration folds inside each outer training fold, then evaluated on the outer validation fold."
+  },
+  "threshold_tuning": {
+    "base_candidate": "xgb_current",
+    "threshold_grid_min": 0.05,
+    "threshold_grid_max": 0.95,
+    "threshold_grid_step": 0.0049999999999999975,
+    "n_outer_folds": 5,
+    "n_inner_folds": 3,
+    "selection_metric": "inner weighted balanced accuracy",
+    "note": "Thresholds are selected from inner out-of-fold probabilities inside each outer training fold, then applied to outer-fold probabilities."
+  },
+  "missingness_indicators": {
+    "base_candidate": "xgb_current",
+    "variants": [
+      "baseline",
+      "with_missingness_indicators"
+    ],
+    "n_outer_folds": 5,
+    "note": "Missingness indicators are row-level feature-is-missing flags added before fold-local median imputation and scaling."
+  },
+  "xgb_nan_handling": {
+    "base_candidate": "xgb_current",
+    "variants": [
+      "median_impute_scale",
+      "native_nan_no_scale"
+    ],
+    "n_outer_folds": 5,
+    "note": "median_impute_scale uses the canonical fold-local imputation and StandardScaler path; native_nan_no_scale passes numeric NaNs directly to XGBoost and skips scaling."
+  },
+  "two_stage_predicted_issues": {
+    "stage1_predictors": "demographics_only",
+    "stage1_model": "HistGradientBoostingRegressor",
+    "stage2_model": "xgb_current",
+    "configs": [
+      "predicted_issues_only",
+      "predicted_issues+demographics",
+      "predicted_issues+party_id+ideology"
+    ],
+    "n_outer_folds": 5,
+    "n_inner_folds_for_train_predictions": 3,
+    "note": "Stage 2 train rows use inner out-of-fold predicted issue values; outer validation rows use issue models fit only on the outer training fold."
+  },
+  "domain_aggregates": {
+    "base_candidate": "xgb_current",
+    "configs": [
+      "domain_issues_only",
+      "domain_issues+demographics",
+      "domain_issues+party_id+ideology"
+    ],
+    "n_outer_folds": 5,
+    "n_domains": 8,
+    "note": "Issue items are fold-locally imputed and standardized, then averaged within thesis issue domains before fitting the fixed voter-intent model."
+  },
+  "soft_voting_ensembles": {
+    "recipes": {
+      "xgb_current": [
+        [
+          "xgb_current",
+          1.0
+        ]
+      ],
+      "xgb_current+shallow": [
+        [
+          "xgb_current",
+          0.5
+        ],
+        [
+          "xgb_shallow_reg",
+          0.5
+        ]
+      ],
+      "xgb_current+logit": [
+        [
+          "xgb_current",
+          0.5
+        ],
+        [
+          "logit_elastic",
+          0.5
+        ]
+      ],
+      "xgb_current+rf": [
+        [
+          "xgb_current",
+          0.5
+        ],
+        [
+          "rf_balanced",
+          0.5
+        ]
+      ],
+      "xgb_current+shallow+logit": [
+        [
+          "xgb_current",
+          0.3333333333333333
+        ],
+        [
+          "xgb_shallow_reg",
+          0.3333333333333333
+        ],
+        [
+          "logit_elastic",
+          0.3333333333333333
+        ]
+      ]
+    },
+    "n_outer_folds": 5,
+    "note": "Each recipe trains fixed candidate learners on the same outer training fold and averages predicted probabilities on the outer validation fold.",
+    "paired_bootstrap": {
+      "comparison": "candidate ensemble minus xgb_current on the same out-of-fold rows",
+      "ensembles": [
+        "xgb_current+logit",
+        "xgb_current+shallow+logit"
+      ],
+      "n_bootstrap": 5000,
+      "random_state": 42
+    },
+    "threshold_tuning": {
+      "ensembles": [
+        "xgb_current+logit",
+        "xgb_current+shallow+logit"
+      ],
+      "threshold_grid_min": 0.05,
+      "threshold_grid_max": 0.95,
+      "threshold_grid_step": 0.0049999999999999975,
+      "n_outer_folds": 5,
+      "n_inner_folds": 3,
+      "selection_metric": "inner weighted balanced accuracy",
+      "note": "Thresholds are selected from inner out-of-fold ensemble probabilities inside each outer training fold, then applied to outer-fold ensemble probabilities."
+    }
+  },
+  "class_balance_training": {
+    "base_candidate": "xgb_current",
+    "variants": [
+      "survey_weight_only",
+      "survey_x_fold_class_balance"
+    ],
+    "n_outer_folds": 5,
+    "note": "survey_x_fold_class_balance multiplies survey weights in each training fold by inverse class-weight factors, then evaluates held-out predictions with the original survey weights."
+  },
+  "fixed_candidate_pairwise_bootstrap": {
+    "baseline_candidate": "xgb_current",
+    "candidates": [
+      "xgb_shallow_reg",
+      "xgb_more_trees",
+      "xgb_depth4",
+      "rf_balanced",
+      "logit_elastic"
+    ],
+    "n_outer_folds": 5,
+    "n_bootstrap": 5000,
+    "comparison": "candidate minus xgb_current on the same out-of-fold rows",
+    "random_state": 42
+  },
+  "feature_pairwise_bootstrap": {
+    "base_candidate": "xgb_current",
+    "pairs": [
+      [
+        "issues+party_id",
+        "issues_only"
+      ],
+      [
+        "issues+ideology",
+        "issues_only"
+      ],
+      [
+        "issues+demographics",
+        "issues_only"
+      ],
+      [
+        "issues+party_id+ideology",
+        "issues+party_id"
+      ],
+      [
+        "issues+party_id+ideology",
+        "issues+ideology"
+      ],
+      [
+        "issues+demographics+ideology",
+        "issues+demographics"
+      ],
+      [
+        "issues+demographics+ideology",
+        "issues+ideology"
+      ],
+      [
+        "issues+party_id+ideology",
+        "issues+demographics+ideology"
+      ]
+    ],
+    "n_outer_folds": 5,
+    "n_bootstrap": 5000,
+    "comparison": "reference feature config minus comparison feature config on the same out-of-fold rows",
+    "random_state": 42
+  },
+  "domain_pruning": {
+    "base_candidate": "xgb_current",
+    "configs": [
+      "issues_only",
+      "issues+party_id+ideology",
+      "issues+demographics+ideology"
+    ],
+    "domains": [
+      "economic_welfare",
+      "race_dei",
+      "environment",
+      "abortion",
+      "immigration_identity",
+      "law_order_democracy",
+      "gender_lgbt",
+      "foreign_policy"
+    ],
+    "n_outer_folds": 5,
+    "n_bootstrap": 5000,
+    "note": "Each variant removes one thesis issue domain from the item-level issue feature set while keeping the same fixed XGBoost learner. Paired bootstrap rows compare minus-domain variants against the same config with all issue domains."
+  },
+  "issue_pca": {
+    "base_candidate": "xgb_current",
+    "configs": [
+      "pca_issues_only",
+      "pca_issues+party_id+ideology",
+      "pca_issues+demographics+ideology"
+    ],
+    "n_components": [
+      5,
+      10,
+      20,
+      30
+    ],
+    "n_outer_folds": 5,
+    "n_bootstrap": 5000,
+    "note": "Issue items are fold-locally imputed and standardized, then PCA is fit only on the outer training fold. Paired bootstrap rows compare each PCA config against the matching item-level canonical config."
+  },
+  "training_weight_sensitivity": {
+    "base_candidate": "xgb_current",
+    "variants": [
+      "survey_weight",
+      "unweighted_equal",
+      "sqrt_survey_weight",
+      "clipped_survey_weight_p95"
+    ],
+    "n_outer_folds": 5,
+    "n_bootstrap": 5000,
+    "note": "Training weights are changed inside each training fold and rescaled to preserve the original train-fold weight sum. Evaluation always uses the original survey weights."
+  },
+  "issue_topk_selection": {
+    "base_candidate": "xgb_current",
+    "configs": [
+      "topk_issues_only",
+      "topk_issues+party_id+ideology",
+      "topk_issues+demographics+ideology"
+    ],
+    "canonical_config_map": {
+      "topk_issues_only": "issues_only",
+      "topk_issues+party_id+ideology": "issues+party_id+ideology",
+      "topk_issues+demographics+ideology": "issues+demographics+ideology"
+    },
+    "top_k_values": [
+      5,
+      10,
+      15,
+      25,
+      35
+    ],
+    "n_outer_folds": 5,
+    "n_bootstrap": 5000,
+    "scoring": "absolute weighted standardized mean gap between Trump and Harris",
+    "note": "Issue items are selected inside each outer training fold after fold-local imputation and standardization. Paired bootstrap rows compare each top-k config against the matching full item-level canonical config."
+  },
+  "xgb_profile_sweep": {
+    "baseline_candidate": "xgb_current",
+    "candidates": [
+      "xgb_current",
+      "xgb_shallow_reg",
+      "xgb_more_trees",
+      "xgb_depth4",
+      "xgb_stump_reg",
+      "xgb_depth2_subsample",
+      "xgb_depth3_heavy_reg",
+      "xgb_depth4_shrinkage"
+    ],
+    "n_outer_folds": 5,
+    "n_bootstrap": 5000,
+    "note": "Fixed XGBoost depth, shrinkage, subsampling, and regularization profiles are compared against xgb_current on the same out-of-fold rows. This keeps the model family fixed while testing nearby training profiles."
+  },
+  "issue_encoding": {
+    "base_candidate": "xgb_current",
+    "configs": [
+      "issue_categorical_issues_only",
+      "issue_categorical+party_id+ideology",
+      "issue_categorical+demographics+ideology"
+    ],
+    "canonical_config_map": {
+      "issue_categorical_issues_only": "issues_only",
+      "issue_categorical+party_id+ideology": "issues+party_id+ideology",
+      "issue_categorical+demographics+ideology": "issues+demographics+ideology"
+    },
+    "variants": [
+      "numeric_ordinal",
+      "issue_onehot"
+    ],
+    "n_outer_folds": 5,
+    "n_bootstrap": 5000,
+    "note": "numeric_ordinal is the canonical numeric issue coding. issue_onehot treats issue responses as categorical dummy variables with a missing category while keeping the same fixed XGBoost learner and survey-weighted evaluation."
+  },
+  "political_encoding": {
+    "base_candidate": "xgb_current",
+    "configs": [
+      "political_categorical_party_id_only",
+      "political_categorical_party_id+ideology",
+      "issues+political_categorical"
+    ],
+    "canonical_config_map": {
+      "political_categorical_party_id_only": "party_id_only",
+      "political_categorical_party_id+ideology": "party_id+ideology",
+      "issues+political_categorical": "issues+party_id+ideology"
+    },
+    "variants": [
+      "numeric_ordinal",
+      "political_onehot"
+    ],
+    "n_outer_folds": 5,
+    "n_bootstrap": 5000,
+    "note": "numeric_ordinal is the canonical party-ID and ideology coding. political_onehot treats party ID and ideology as categorical dummy variables while keeping issue items in their canonical numeric form."
+  },
+  "xgb_early_stopping": {
+    "base_candidate": "xgb_current",
+    "variants": [
+      "fixed_300",
+      "early_stop_1000_15pct"
+    ],
+    "n_outer_folds": 5,
+    "n_bootstrap": 5000,
+    "early_stop_eval_fraction": 0.15,
+    "early_stopping_rounds": 25,
+    "note": "The early-stop variant splits each outer training fold into a model fit subset and a 15% early-stopping subset. The held-out outer fold is never used for stopping or preprocessing."
+  },
+  "xgb_optuna_tuning": {
+    "base_candidate": "xgb_current",
+    "variants": [
+      "fixed_300",
+      "optuna_xgb_balanced_accuracy"
+    ],
+    "configs": [
+      "issues+party_id+ideology"
+    ],
+    "n_outer_folds": 5,
+    "n_inner_folds": 3,
+    "n_trials": 12,
+    "n_bootstrap": 5000,
+    "selection_metric": "inner weighted balanced accuracy",
+    "note": "Optuna tunes XGBoost hyperparameters inside each outer training fold. The outer held-out fold is never used for hyperparameter selection or preprocessing."
+  },
+  "xgb_seed_bagging": {
+    "base_candidate": "xgb_current",
+    "variants": [
+      "xgb_current",
+      "xgb_seed_bag_5"
+    ],
+    "configs": [
+      "issues_only",
+      "issues+party_id+ideology",
+      "issues+demographics+ideology"
+    ],
+    "seeds": [
+      42,
+      43,
+      44,
+      45,
+      46
+    ],
+    "n_outer_folds": 5,
+    "n_bootstrap": 5000,
+    "note": "xgb_seed_bag_5 averages probabilities from the canonical XGBoost profile fit with five deterministic random seeds. Evaluation uses the same outer folds and original survey weights."
+  },
+  "xgb_profile_threshold_tuning": {
+    "baseline_candidate": "xgb_current",
+    "configs": [
+      "demographics_only",
+      "ideology_only",
+      "party_id_only",
+      "issues_only",
+      "issues+party_id+ideology",
+      "issues+demographics+ideology"
+    ],
+    "candidates": [
+      "xgb_current",
+      "xgb_shallow_reg",
+      "xgb_depth2_subsample",
+      "xgb_stump_reg"
+    ],
+    "threshold_grid_min": 0.05,
+    "threshold_grid_max": 0.95,
+    "threshold_grid_step": 0.0049999999999999975,
+    "n_outer_folds": 5,
+    "n_inner_folds": 3,
+    "n_bootstrap": 5000,
+    "selection_metric": "inner weighted balanced accuracy",
+    "note": "Thresholds are selected from inner out-of-fold probabilities inside each outer training fold for fixed XGBoost profile candidates. Rows compare thresholded profiles against xgb_current at threshold 0.5."
+  },
+  "extended_candidate_bootstrap": {
+    "baseline_candidate": "xgb_current",
+    "candidates": [
+      "rf_leaf10",
+      "extra_trees",
+      "logit_l2_bal",
+      "histgb"
+    ],
+    "configs": [
+      "demographics_only",
+      "ideology_only",
+      "party_id_only",
+      "issues_only",
+      "issues+party_id+ideology",
+      "issues+demographics+ideology"
+    ],
+    "n_outer_folds": 5,
+    "n_bootstrap": 5000,
+    "note": "Additional fixed learners already available in candidate_factories are compared against xgb_current on the same out-of-fold rows. This artifact is separate from candidate_pairwise_bootstrap.csv so the original core-candidate evidence remains stable."
+  },
+  "extended_candidate_threshold_tuning": {
+    "baseline_candidate": "xgb_current",
+    "configs": [
+      "issues+party_id+ideology"
+    ],
+    "candidates": [
+      "rf_leaf10",
+      "extra_trees",
+      "logit_l2_bal",
+      "histgb"
+    ],
+    "threshold_grid_min": 0.05,
+    "threshold_grid_max": 0.95,
+    "threshold_grid_step": 0.0049999999999999975,
+    "n_outer_folds": 5,
+    "n_inner_folds": 3,
+    "n_bootstrap": 5000,
+    "selection_metric": "inner weighted balanced accuracy",
+    "note": "Decision thresholds are selected from inner out-of-fold probabilities inside each outer training fold for additional fixed learner families. Rows compare thresholded candidates against xgb_current at threshold 0.5."
+  },
+  "extended_candidate_calibration": {
+    "baseline_candidate": "xgb_current",
+    "configs": [
+      "issues+party_id+ideology"
+    ],
+    "candidates": [
+      "rf_leaf10",
+      "extra_trees",
+      "logit_l2_bal",
+      "histgb"
+    ],
+    "methods": [
+      "sigmoid",
+      "isotonic"
+    ],
+    "n_outer_folds": 5,
+    "n_inner_folds": 3,
+    "n_bootstrap": 5000,
+    "note": "Additional fixed learner families are calibrated with inner-fold sigmoid or isotonic calibrators inside each outer training fold. Rows compare calibrated candidates against uncalibrated xgb_current."
+  },
+  "extended_candidate_calibration_threshold_tuning": {
+    "baseline_candidate": "xgb_current",
+    "configs": [
+      "issues+party_id+ideology"
+    ],
+    "candidates": [
+      "rf_leaf10",
+      "extra_trees",
+      "logit_l2_bal",
+      "histgb"
+    ],
+    "methods": [
+      "sigmoid",
+      "isotonic"
+    ],
+    "threshold_grid_min": 0.05,
+    "threshold_grid_max": 0.95,
+    "threshold_grid_step": 0.0049999999999999975,
+    "n_outer_folds": 5,
+    "n_inner_folds": 3,
+    "n_bootstrap": 5000,
+    "selection_metric": "inner weighted balanced accuracy",
+    "note": "Additional fixed learner families are calibrated with inner-fold sigmoid or isotonic calibrators and then threshold-tuned using separate inner out-of-fold calibrated probabilities inside each outer training fold. Rows compare against uncalibrated xgb_current at threshold 0.5."
+  },
+  "calibrated_extended_blends": {
+    "baseline_candidate": "xgb_current",
+    "configs": [
+      "issues+party_id+ideology"
+    ],
+    "recipes": [
+      "xgb_current+logit_l2_sigmoid",
+      "xgb_current+histgb_sigmoid",
+      "xgb_current+extra_trees_sigmoid",
+      "xgb_current+logit_l2+histgb_sigmoid"
+    ],
+    "recipe_definitions": {
+      "xgb_current+logit_l2_sigmoid": [
+        {
+          "candidate": "xgb_current",
+          "calibration": "none",
+          "weight": 0.5
+        },
+        {
+          "candidate": "logit_l2_bal",
+          "calibration": "sigmoid",
+          "weight": 0.5
+        }
+      ],
+      "xgb_current+histgb_sigmoid": [
+        {
+          "candidate": "xgb_current",
+          "calibration": "none",
+          "weight": 0.5
+        },
+        {
+          "candidate": "histgb",
+          "calibration": "sigmoid",
+          "weight": 0.5
+        }
+      ],
+      "xgb_current+extra_trees_sigmoid": [
+        {
+          "candidate": "xgb_current",
+          "calibration": "none",
+          "weight": 0.5
+        },
+        {
+          "candidate": "extra_trees",
+          "calibration": "sigmoid",
+          "weight": 0.5
+        }
+      ],
+      "xgb_current+logit_l2+histgb_sigmoid": [
+        {
+          "candidate": "xgb_current",
+          "calibration": "none",
+          "weight": 0.3333333333333333
+        },
+        {
+          "candidate": "logit_l2_bal",
+          "calibration": "sigmoid",
+          "weight": 0.3333333333333333
+        },
+        {
+          "candidate": "histgb",
+          "calibration": "sigmoid",
+          "weight": 0.3333333333333333
+        }
+      ]
+    },
+    "n_outer_folds": 5,
+    "n_inner_folds": 3,
+    "n_bootstrap": 5000,
+    "note": "Fixed probability blends average canonical xgb_current probabilities with fold-local calibrated extended learner probabilities on the same outer folds. Rows compare blends against xgb_current."
+  },
+  "calibrated_extended_blend_threshold_tuning": {
+    "baseline_candidate": "xgb_current",
+    "configs": [
+      "issues+party_id+ideology"
+    ],
+    "recipes": [
+      "xgb_current+logit_l2_sigmoid",
+      "xgb_current+histgb_sigmoid",
+      "xgb_current+extra_trees_sigmoid",
+      "xgb_current+logit_l2+histgb_sigmoid"
+    ],
+    "threshold_grid_min": 0.05,
+    "threshold_grid_max": 0.95,
+    "threshold_grid_step": 0.0049999999999999975,
+    "n_outer_folds": 5,
+    "n_inner_folds": 3,
+    "n_bootstrap": 5000,
+    "selection_metric": "inner weighted balanced accuracy",
+    "note": "Fixed probability blends of xgb_current and calibrated extended learners are threshold-tuned with inner out-of-fold blend probabilities inside each outer training fold."
+  },
+  "calibrated_extended_blend_grid": {
+    "baseline_candidate": "xgb_current",
+    "configs": [
+      "issues+party_id+ideology"
+    ],
+    "recipes": [
+      "xgb80+logit_l2_sigmoid20",
+      "xgb65+logit_l2_sigmoid35",
+      "xgb35+logit_l2_sigmoid65",
+      "xgb20+logit_l2_sigmoid80",
+      "xgb80+histgb_sigmoid20",
+      "xgb65+histgb_sigmoid35",
+      "xgb35+histgb_sigmoid65",
+      "xgb20+histgb_sigmoid80",
+      "xgb80+extra_trees_sigmoid20",
+      "xgb65+extra_trees_sigmoid35",
+      "xgb35+extra_trees_sigmoid65",
+      "xgb20+extra_trees_sigmoid80",
+      "xgb70+logit_l2_sigmoid15+histgb_sigmoid15",
+      "xgb50+logit_l2_sigmoid25+histgb_sigmoid25",
+      "xgb30+logit_l2_sigmoid35+histgb_sigmoid35"
+    ],
+    "recipe_definitions": {
+      "xgb80+logit_l2_sigmoid20": [
+        {
+          "candidate": "xgb_current",
+          "calibration": "none",
+          "weight": 0.8
+        },
+        {
+          "candidate": "logit_l2_bal",
+          "calibration": "sigmoid",
+          "weight": 0.2
+        }
+      ],
+      "xgb65+logit_l2_sigmoid35": [
+        {
+          "candidate": "xgb_current",
+          "calibration": "none",
+          "weight": 0.65
+        },
+        {
+          "candidate": "logit_l2_bal",
+          "calibration": "sigmoid",
+          "weight": 0.35
+        }
+      ],
+      "xgb35+logit_l2_sigmoid65": [
+        {
+          "candidate": "xgb_current",
+          "calibration": "none",
+          "weight": 0.35
+        },
+        {
+          "candidate": "logit_l2_bal",
+          "calibration": "sigmoid",
+          "weight": 0.65
+        }
+      ],
+      "xgb20+logit_l2_sigmoid80": [
+        {
+          "candidate": "xgb_current",
+          "calibration": "none",
+          "weight": 0.2
+        },
+        {
+          "candidate": "logit_l2_bal",
+          "calibration": "sigmoid",
+          "weight": 0.8
+        }
+      ],
+      "xgb80+histgb_sigmoid20": [
+        {
+          "candidate": "xgb_current",
+          "calibration": "none",
+          "weight": 0.8
+        },
+        {
+          "candidate": "histgb",
+          "calibration": "sigmoid",
+          "weight": 0.2
+        }
+      ],
+      "xgb65+histgb_sigmoid35": [
+        {
+          "candidate": "xgb_current",
+          "calibration": "none",
+          "weight": 0.65
+        },
+        {
+          "candidate": "histgb",
+          "calibration": "sigmoid",
+          "weight": 0.35
+        }
+      ],
+      "xgb35+histgb_sigmoid65": [
+        {
+          "candidate": "xgb_current",
+          "calibration": "none",
+          "weight": 0.35
+        },
+        {
+          "candidate": "histgb",
+          "calibration": "sigmoid",
+          "weight": 0.65
+        }
+      ],
+      "xgb20+histgb_sigmoid80": [
+        {
+          "candidate": "xgb_current",
+          "calibration": "none",
+          "weight": 0.2
+        },
+        {
+          "candidate": "histgb",
+          "calibration": "sigmoid",
+          "weight": 0.8
+        }
+      ],
+      "xgb80+extra_trees_sigmoid20": [
+        {
+          "candidate": "xgb_current",
+          "calibration": "none",
+          "weight": 0.8
+        },
+        {
+          "candidate": "extra_trees",
+          "calibration": "sigmoid",
+          "weight": 0.2
+        }
+      ],
+      "xgb65+extra_trees_sigmoid35": [
+        {
+          "candidate": "xgb_current",
+          "calibration": "none",
+          "weight": 0.65
+        },
+        {
+          "candidate": "extra_trees",
+          "calibration": "sigmoid",
+          "weight": 0.35
+        }
+      ],
+      "xgb35+extra_trees_sigmoid65": [
+        {
+          "candidate": "xgb_current",
+          "calibration": "none",
+          "weight": 0.35
+        },
+        {
+          "candidate": "extra_trees",
+          "calibration": "sigmoid",
+          "weight": 0.65
+        }
+      ],
+      "xgb20+extra_trees_sigmoid80": [
+        {
+          "candidate": "xgb_current",
+          "calibration": "none",
+          "weight": 0.2
+        },
+        {
+          "candidate": "extra_trees",
+          "calibration": "sigmoid",
+          "weight": 0.8
+        }
+      ],
+      "xgb70+logit_l2_sigmoid15+histgb_sigmoid15": [
+        {
+          "candidate": "xgb_current",
+          "calibration": "none",
+          "weight": 0.7
+        },
+        {
+          "candidate": "logit_l2_bal",
+          "calibration": "sigmoid",
+          "weight": 0.15
+        },
+        {
+          "candidate": "histgb",
+          "calibration": "sigmoid",
+          "weight": 0.15
+        }
+      ],
+      "xgb50+logit_l2_sigmoid25+histgb_sigmoid25": [
+        {
+          "candidate": "xgb_current",
+          "calibration": "none",
+          "weight": 0.5
+        },
+        {
+          "candidate": "logit_l2_bal",
+          "calibration": "sigmoid",
+          "weight": 0.25
+        },
+        {
+          "candidate": "histgb",
+          "calibration": "sigmoid",
+          "weight": 0.25
+        }
+      ],
+      "xgb30+logit_l2_sigmoid35+histgb_sigmoid35": [
+        {
+          "candidate": "xgb_current",
+          "calibration": "none",
+          "weight": 0.3
+        },
+        {
+          "candidate": "logit_l2_bal",
+          "calibration": "sigmoid",
+          "weight": 0.35
+        },
+        {
+          "candidate": "histgb",
+          "calibration": "sigmoid",
+          "weight": 0.35
+        }
+      ]
+    },
+    "n_outer_folds": 5,
+    "n_inner_folds": 3,
+    "n_bootstrap": 5000,
+    "note": "A bounded grid of fixed probability weights averages canonical xgb_current probabilities with fold-local calibrated extended learner probabilities on the same outer folds. Rows compare each predeclared weight recipe against xgb_current."
+  },
+  "calibrated_extended_blend_grid_core": {
+    "baseline_candidate": "xgb_current",
+    "configs": [
+      "demographics_only",
+      "ideology_only",
+      "party_id_only",
+      "issues_only",
+      "issues+party_id+ideology",
+      "issues+demographics+ideology"
+    ],
+    "recipes": [
+      "xgb65+histgb_sigmoid35",
+      "xgb70+logit_l2_sigmoid15+histgb_sigmoid15"
+    ],
+    "n_outer_folds": 5,
+    "n_inner_folds": 3,
+    "n_bootstrap": 5000,
+    "note": "The BA-positive calibrated blend-grid recipes are re-run across the core feature configurations to test whether the headline-cell gain generalizes to the fixed-learner feature-comparison contract."
+  },
+  "xgb_profile_calibration": {
+    "baseline_candidate": "xgb_current",
+    "configs": [
+      "demographics_only",
+      "ideology_only",
+      "party_id_only",
+      "issues_only",
+      "issues+party_id+ideology",
+      "issues+demographics+ideology"
+    ],
+    "candidates": [
+      "xgb_shallow_reg",
+      "xgb_depth2_subsample",
+      "xgb_stump_reg"
+    ],
+    "methods": [
+      "sigmoid",
+      "isotonic"
+    ],
+    "n_outer_folds": 5,
+    "n_inner_folds": 3,
+    "n_bootstrap": 5000,
+    "note": "Fold-local probability calibration is fit for selected fixed XGBoost profile candidates inside each outer training fold. Rows compare calibrated profiles against uncalibrated xgb_current."
+  },
+  "xgb_profile_calibration_threshold": {
+    "baseline_candidate": "xgb_current",
+    "configs": [
+      "demographics_only",
+      "ideology_only",
+      "party_id_only",
+      "issues_only",
+      "issues+party_id+ideology",
+      "issues+demographics+ideology"
+    ],
+    "candidates": [
+      "xgb_shallow_reg",
+      "xgb_depth2_subsample",
+      "xgb_stump_reg"
+    ],
+    "methods": [
+      "sigmoid",
+      "isotonic"
+    ],
+    "threshold_grid_min": 0.05,
+    "threshold_grid_max": 0.95,
+    "threshold_grid_step": 0.0049999999999999975,
+    "n_outer_folds": 5,
+    "n_inner_folds": 3,
+    "n_bootstrap": 5000,
+    "selection_metric": "inner weighted balanced accuracy",
+    "note": "Selected fixed XGBoost profiles are calibrated with inner-fold sigmoid or isotonic calibrators and then threshold-tuned using separate inner out-of-fold calibrated probabilities inside each outer training fold. Rows compare against uncalibrated xgb_current at threshold 0.5."
+  },
+  "xgb_profile_blend_grid": {
+    "baseline_candidate": "xgb_current",
+    "configs": [
+      "demographics_only",
+      "ideology_only",
+      "party_id_only",
+      "issues_only",
+      "issues+party_id+ideology",
+      "issues+demographics+ideology"
+    ],
+    "recipes": [
+      "xgb80+shallow20",
+      "xgb65+shallow35",
+      "xgb50+shallow50",
+      "xgb80+depth2_20",
+      "xgb65+depth2_35",
+      "xgb50+depth2_50",
+      "xgb80+stump20",
+      "xgb65+stump35",
+      "xgb70+shallow15+depth2_15",
+      "xgb70+depth2_15+stump15"
+    ],
+    "recipe_definitions": {
+      "xgb80+shallow20": [
+        {
+          "candidate": "xgb_current",
+          "weight": 0.8
+        },
+        {
+          "candidate": "xgb_shallow_reg",
+          "weight": 0.2
+        }
+      ],
+      "xgb65+shallow35": [
+        {
+          "candidate": "xgb_current",
+          "weight": 0.65
+        },
+        {
+          "candidate": "xgb_shallow_reg",
+          "weight": 0.35
+        }
+      ],
+      "xgb50+shallow50": [
+        {
+          "candidate": "xgb_current",
+          "weight": 0.5
+        },
+        {
+          "candidate": "xgb_shallow_reg",
+          "weight": 0.5
+        }
+      ],
+      "xgb80+depth2_20": [
+        {
+          "candidate": "xgb_current",
+          "weight": 0.8
+        },
+        {
+          "candidate": "xgb_depth2_subsample",
+          "weight": 0.2
+        }
+      ],
+      "xgb65+depth2_35": [
+        {
+          "candidate": "xgb_current",
+          "weight": 0.65
+        },
+        {
+          "candidate": "xgb_depth2_subsample",
+          "weight": 0.35
+        }
+      ],
+      "xgb50+depth2_50": [
+        {
+          "candidate": "xgb_current",
+          "weight": 0.5
+        },
+        {
+          "candidate": "xgb_depth2_subsample",
+          "weight": 0.5
+        }
+      ],
+      "xgb80+stump20": [
+        {
+          "candidate": "xgb_current",
+          "weight": 0.8
+        },
+        {
+          "candidate": "xgb_stump_reg",
+          "weight": 0.2
+        }
+      ],
+      "xgb65+stump35": [
+        {
+          "candidate": "xgb_current",
+          "weight": 0.65
+        },
+        {
+          "candidate": "xgb_stump_reg",
+          "weight": 0.35
+        }
+      ],
+      "xgb70+shallow15+depth2_15": [
+        {
+          "candidate": "xgb_current",
+          "weight": 0.7
+        },
+        {
+          "candidate": "xgb_shallow_reg",
+          "weight": 0.15
+        },
+        {
+          "candidate": "xgb_depth2_subsample",
+          "weight": 0.15
+        }
+      ],
+      "xgb70+depth2_15+stump15": [
+        {
+          "candidate": "xgb_current",
+          "weight": 0.7
+        },
+        {
+          "candidate": "xgb_depth2_subsample",
+          "weight": 0.15
+        },
+        {
+          "candidate": "xgb_stump_reg",
+          "weight": 0.15
+        }
+      ]
+    },
+    "n_outer_folds": 5,
+    "n_bootstrap": 5000,
+    "note": "A bounded grid of fixed probability weights averages canonical xgb_current probabilities with selected fixed XGBoost profile probabilities on the same outer folds. Rows compare each predeclared same-family blend against xgb_current."
+  },
+  "xgb_profile_blend_threshold": {
+    "baseline_candidate": "xgb_current",
+    "configs": [
+      "issues+party_id+ideology",
+      "issues+demographics+ideology"
+    ],
+    "recipes": [
+      "xgb65+shallow35",
+      "xgb50+shallow50",
+      "xgb65+stump35",
+      "xgb80+shallow20",
+      "xgb80+depth2_20",
+      "xgb65+depth2_35"
+    ],
+    "recipe_definitions": {
+      "xgb65+shallow35": [
+        {
+          "candidate": "xgb_current",
+          "weight": 0.65
+        },
+        {
+          "candidate": "xgb_shallow_reg",
+          "weight": 0.35
+        }
+      ],
+      "xgb50+shallow50": [
+        {
+          "candidate": "xgb_current",
+          "weight": 0.5
+        },
+        {
+          "candidate": "xgb_shallow_reg",
+          "weight": 0.5
+        }
+      ],
+      "xgb65+stump35": [
+        {
+          "candidate": "xgb_current",
+          "weight": 0.65
+        },
+        {
+          "candidate": "xgb_stump_reg",
+          "weight": 0.35
+        }
+      ],
+      "xgb80+shallow20": [
+        {
+          "candidate": "xgb_current",
+          "weight": 0.8
+        },
+        {
+          "candidate": "xgb_shallow_reg",
+          "weight": 0.2
+        }
+      ],
+      "xgb80+depth2_20": [
+        {
+          "candidate": "xgb_current",
+          "weight": 0.8
+        },
+        {
+          "candidate": "xgb_depth2_subsample",
+          "weight": 0.2
+        }
+      ],
+      "xgb65+depth2_35": [
+        {
+          "candidate": "xgb_current",
+          "weight": 0.65
+        },
+        {
+          "candidate": "xgb_depth2_subsample",
+          "weight": 0.35
+        }
+      ]
+    },
+    "threshold_grid_min": 0.05,
+    "threshold_grid_max": 0.95,
+    "threshold_grid_step": 0.0049999999999999975,
+    "n_outer_folds": 5,
+    "n_inner_folds": 3,
+    "n_bootstrap": 5000,
+    "selection_metric": "inner weighted balanced accuracy",
+    "note": "The strongest same-family XGBoost profile blends from the fixed blend grid are threshold-tuned with inner out-of-fold blend probabilities inside each outer training fold."
+  },
+  "two_stage_stage1_model_sweep": {
+    "stage1_predictors": "demographics_only",
+    "stage1_models": [
+      "histgb_current",
+      "histgb_smooth",
+      "ridge_l2",
+      "random_forest_reg",
+      "extra_trees_reg"
+    ],
+    "baseline_stage1_model": "histgb_current",
+    "stage2_model": "xgb_current",
+    "configs": [
+      "predicted_issues_only",
+      "predicted_issues+demographics",
+      "predicted_issues+party_id+ideology"
+    ],
+    "n_outer_folds": 5,
+    "n_inner_folds_for_train_predictions": 3,
+    "n_bootstrap": 5000,
+    "note": "This sweep tests whether the demography-to-predicted-issues branch depends on the fixed Stage 1 issue regressor. Stage 2 training rows use inner out-of-fold predicted issue values; outer validation rows use issue models fit only on the outer training fold."
+  },
+  "two_stage_stage2_model_sweep": {
+    "stage1_predictors": "demographics_only",
+    "stage1_model": "histgb_current",
+    "baseline_stage2_model": "xgb_current",
+    "stage2_candidates": [
+      "xgb_current",
+      "xgb_shallow_reg",
+      "logit_l2_bal",
+      "rf_leaf10",
+      "extra_trees",
+      "histgb"
+    ],
+    "configs": [
+      "predicted_issues_only",
+      "predicted_issues+demographics",
+      "predicted_issues+party_id+ideology"
+    ],
+    "n_outer_folds": 5,
+    "n_inner_folds_for_train_predictions": 3,
+    "n_bootstrap": 5000,
+    "note": "This sweep keeps the current cross-fitted Stage 1 issue regressor fixed and tests whether alternative Stage 2 learners improve the demographics-to-predicted-issues voter-intent chain."
+  }
+}

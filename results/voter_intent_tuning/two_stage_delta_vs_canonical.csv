@@ -1,0 +1,9 @@
+cohort,two_stage_config,comparison_config,delta_balanced_accuracy,delta_macro_f1,delta_log_loss,delta_brier_score
+all_respondents,predicted_issues_only,demographics_only,-0.015373501550974611,-0.015102616519738987,0.0038472627434601447,0.0019145418781111312
+independents_plus_leaners,predicted_issues_only,demographics_only,-0.020076247163188343,-0.02045846589333611,0.010858591567198705,0.005474175463756309
+all_respondents,predicted_issues_only,issues_only,-0.22226069087288758,-0.22224337148394702,0.35885206593883834,0.13206837312366784
+independents_plus_leaners,predicted_issues_only,issues_only,-0.2922683799804302,-0.2924544154426284,0.42491957034266686,0.16165845647765692
+all_respondents,predicted_issues+party_id+ideology,party_id+ideology,0.0021005493734544967,0.002505468029383562,-0.001300303468413866,-0.0013492800150644163
+independents_plus_leaners,predicted_issues+party_id+ideology,party_id+ideology,-0.001338222452109794,-0.0004314515852230638,-0.006462376602440589,-0.003796446967549938
+all_respondents,predicted_issues+party_id+ideology,issues+party_id+ideology,-0.005098626993327748,-0.005910973180163648,0.047581523483767735,0.010593235950575389
+independents_plus_leaners,predicted_issues+party_id+ideology,issues+party_id+ideology,-0.02067215287838453,-0.02125051994422711,0.10373867575312368,0.025154412223424266

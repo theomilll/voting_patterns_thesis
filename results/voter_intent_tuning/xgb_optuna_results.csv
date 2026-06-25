@@ -1,0 +1,5 @@
+cohort,config,variant,stage2_model,n,n_features_raw,n_trials,balanced_accuracy,macro_f1,log_loss,brier_score
+all_respondents,issues+party_id+ideology,fixed_300,xgb_current,4755,47,0,0.9442104224060371,0.9448380896702507,0.14963186148706992,0.04234961895190386
+all_respondents,issues+party_id+ideology,optuna_xgb_balanced_accuracy,xgb_current,4755,47,12,0.9452671345305612,0.9455762775427508,0.15348399331358403,0.04244442963630863
+independents_plus_leaners,issues+party_id+ideology,fixed_300,xgb_current,1303,47,0,0.9081297136029804,0.908140336414409,0.20721565299429703,0.06413058659838228
+independents_plus_leaners,issues+party_id+ideology,optuna_xgb_balanced_accuracy,xgb_current,1303,47,12,0.9054745991410706,0.9055220460860844,0.20849302957190816,0.06459562953103012

@@ -43,7 +43,10 @@ DEMO_STRICT = [
     "hispanic",
 ]
 
-DEMO_COLS = DEMO_STRICT + ["ideology"]  # backward compat
+DEMO_COLS = DEMO_STRICT + ["ideology"]  # ideology-inclusive baseline
+STAGE1_DEMO_COLS = DEMO_STRICT
+PREDICTED_ISSUE_STAGE2_COLS = DEMO_STRICT
+NOMINAL_COLS = {"race", "marital", "employment"}
 
 ISSUE_COLS = [
     "econ_opportunity", "econ_mobility", "econ_mobility_summary",
@@ -51,7 +54,7 @@ ISSUE_COLS = [
     "immig_level", "immig_policy1", "immig_policy2", "immig_policy3",
     "gun_difficulty", "gun_background", "gun_assault_ban",
     "climate_impact", "climate_regulation",
-    "abortion_access", "abortion_scale", "abortion_detail",
+    # abortion_* dropped 2026-05-31: no post-wave abortion-position variable (see prepare_anes.py)
     "racial_selfhelp", "racial_slavery", "racial_deserve", "racial_tryharder",
     "populism_insiders", "populism_rich", "fairshare_summary",
     "gender_trad_summary", "gender_equality", "gender_discrim",
@@ -91,7 +94,7 @@ ENGAGEMENT_ATTITUDES = [  # 9 — political engagement + emotions
     "emotion_pride", "emotion_worry", "emotion_happy",
 ]
 
-# Union of all sub-groups (backward compat)
+# Union of all lifestyle sub-groups
 LIFESTYLE_COLS = (MEDIA_ENTERTAINMENT + MEDIA_POLITICAL + MEDIA_MAINSTREAM
                   + MEDIA_WEB + MEDIA_SOURCES + ENGAGEMENT_ATTITUDES)
 
@@ -132,6 +135,25 @@ def load_data():
     return df
 
 
+def _encode_feature_frame(X):
+    """One-hot encode unordered nominal predictors before fold-level imputation."""
+    nominal = [c for c in X.columns if c in NOMINAL_COLS]
+    if nominal:
+        X = pd.get_dummies(
+            X, columns=nominal, dummy_na=True, prefix_sep="=", dtype=float
+        )
+    return X.astype(float)
+
+
+def _base_feature_name(feature_name):
+    return feature_name.split("=", 1)[0]
+
+
+def _feature_category(feature_name):
+    base = _base_feature_name(feature_name)
+    return "demographic" if base in DEMO_COLS else "issue"
+
+
 def prepare_features(df, feature_cols, target_col):
     """Prepare X, y — encoding only, NO imputation (done inside CV folds)."""
     X = df[feature_cols].copy()
@@ -140,6 +162,7 @@ def prepare_features(df, feature_cols, target_col):
     # Drop rows where target is NaN
     valid = y.notna()
     X, y = X[valid], y[valid]
+    X = _encode_feature_frame(X)
 
     # Always encode target to 0-indexed integers
     le = LabelEncoder()
@@ -148,9 +171,43 @@ def prepare_features(df, feature_cols, target_col):
     return X.values.astype(float), y.values, le, X.columns.tolist()
 
 
+def align_sample_weights_to_target(df, sample_weights, target_col):
+    """Return weights aligned to the non-missing target rows used by prepare_features."""
+    if sample_weights is None:
+        return None
+    weights = np.asarray(sample_weights, dtype=float)
+    valid_mask = df[target_col].notna().to_numpy()
+    valid_count = int(valid_mask.sum())
+    if len(weights) == len(df):
+        return weights[valid_mask]
+    if len(weights) == valid_count:
+        return weights
+    raise ValueError(
+        f"sample_weights length {len(weights)} does not match either full "
+        f"data length {len(df)} or valid {target_col} length {valid_count}"
+    )
+
+
+def require_matching_pred_cols(train_preds, val_preds, context):
+    """Fail fast if nested Stage 1 produced inconsistent Stage 2 feature columns."""
+    train_cols = list(train_preds.columns)
+    val_cols = list(val_preds.columns)
+    if train_cols != val_cols:
+        missing_from_val = sorted(set(train_cols) - set(val_cols))
+        extra_in_val = sorted(set(val_cols) - set(train_cols))
+        raise RuntimeError(
+            f"{context} produced mismatched predicted-issue columns: "
+            f"missing_from_val={missing_from_val}, extra_in_val={extra_in_val}"
+        )
+    if not train_cols:
+        raise RuntimeError(f"{context} produced no predicted issue columns")
+    return train_cols
+
+
 def impute_fold(X_train, X_val):
     """Impute NaN with train-fold medians. Mutates in place."""
     medians = np.nanmedian(X_train, axis=0)
+    medians = np.where(np.isnan(medians), 0.0, medians)
     for j in range(X_train.shape[1]):
         mask_tr = np.isnan(X_train[:, j])
         if mask_tr.any():
@@ -164,6 +221,7 @@ def impute_fold(X_train, X_val):
 def impute_full(X):
     """Impute NaN with column medians on full array. For SHAP/descriptive use."""
     medians = np.nanmedian(X, axis=0)
+    medians = np.where(np.isnan(medians), 0.0, medians)
     for j in range(X.shape[1]):
         mask = np.isnan(X[:, j])
         if mask.any():
@@ -254,6 +312,7 @@ def run_stage1(df, sample_weights=None):
 
     results = []
     issue_predictions = {}  # Store OOF predicted probabilities for Stage 2
+    print(f"  Predictors: strict demographics only ({len(STAGE1_DEMO_COLS)} variables)")
 
     for issue_col in ISSUE_COLS:
         # Simplify to 3 categories: low / mid / high
@@ -274,18 +333,14 @@ def run_stage1(df, sample_weights=None):
                 df[issue_col], q=3, labels=False, duplicates="drop"
             )
 
-        X, y, le, feat_names = prepare_features(df, DEMO_COLS, target_col)
+        X, y, le, feat_names = prepare_features(df, STAGE1_DEMO_COLS, target_col)
         n_classes = len(np.unique(y[~np.isnan(y)]))
 
         if n_classes < 2:
             print(f"  SKIP {issue_col}: only {n_classes} class(es)")
             continue
 
-        # Align weights to valid (non-NaN target) rows
-        valid_mask = df[target_col if target_col != issue_col else issue_col].notna()
-        s1_weights = None
-        if sample_weights is not None:
-            s1_weights = sample_weights[valid_mask.values]
+        s1_weights = align_sample_weights_to_target(df, sample_weights, target_col)
 
         best_model_name = None
         best_bal_acc = -1
@@ -338,9 +393,10 @@ def _run_approach(df, feat_cols, approach_name, n_classes, results,
                   fold_tracker, sample_weights=None):
     """Helper: evaluate all models for one approach."""
     X, y, _, feat_names = prepare_features(df, feat_cols, TARGET)
+    aligned_weights = align_sample_weights_to_target(df, sample_weights, TARGET)
     for model_name, model_fn in MODELS.items():
         metrics, oof_preds, oof_proba, per_fold = cross_validate_model(
-            model_fn, X, y, n_classes, sample_weights=sample_weights
+            model_fn, X, y, n_classes, sample_weights=aligned_weights
         )
         results.append({
             "stage": 2,
@@ -385,7 +441,8 @@ def _run_stage1_for_outer_fold(df_train, df_val, sample_weights_train=None):
                 df_train[issue_col], q=3, labels=False, duplicates="drop"
             )
 
-        X_tr, y_tr, _, _ = prepare_features(df_train_local, DEMO_COLS, target_col)
+        X_tr, y_tr, _, feat_names = prepare_features(
+            df_train_local, STAGE1_DEMO_COLS, target_col)
         n_classes_s1 = len(np.unique(y_tr))
         if n_classes_s1 < 2:
             continue
@@ -400,6 +457,7 @@ def _run_stage1_for_outer_fold(df_train, df_val, sample_weights_train=None):
         best_name = None
         best_ba = -1
         best_oof = None
+        errors = []
         for name, model_fn in MODELS.items():
             try:
                 metrics, _, oof_proba, _ = cross_validate_model(
@@ -408,11 +466,12 @@ def _run_stage1_for_outer_fold(df_train, df_val, sample_weights_train=None):
                     best_ba = metrics["balanced_accuracy"]
                     best_name = name
                     best_oof = oof_proba
-            except Exception:
-                pass
+            except Exception as e:
+                errors.append(f"{name}: {e}")
 
         if best_name is None:
-            continue
+            detail = "; ".join(errors) if errors else "no model candidates ran"
+            raise RuntimeError(f"All Stage 1 models failed for {issue_col}: {detail}")
 
         # 2. Store OOF training features (aligned to df_train index)
         valid_tr_idx = df_train_local.index[valid_tr_mask]
@@ -424,7 +483,9 @@ def _run_stage1_for_outer_fold(df_train, df_val, sample_weights_train=None):
 
         # 3. Re-train SAME model on full train (with weights), predict on val
         # Use all val rows (including NaN issue rows) — val preds only feed Stage 2
-        X_val = df_val[DEMO_COLS].values.astype(float)
+        X_val_df = _encode_feature_frame(df_val[STAGE1_DEMO_COLS].copy())
+        X_val_df = X_val_df.reindex(columns=feat_names, fill_value=0.0)
+        X_val = X_val_df.values.astype(float)
         X_tr_imp = X_tr.copy()
         impute_fold(X_tr_imp, X_val)
         scaler = StandardScaler()
@@ -435,8 +496,10 @@ def _run_stage1_for_outer_fold(df_train, df_val, sample_weights_train=None):
             model = MODELS[best_name](n_classes_s1)
             model.fit(X_tr_s, y_tr, sample_weight=s1_w)
             proba = model.predict_proba(X_val_s)
-        except Exception:
-            continue
+        except Exception as e:
+            raise RuntimeError(
+                f"Selected Stage 1 model {best_name} failed for {issue_col}"
+            ) from e
 
         for c in range(proba.shape[1]):
             col_name = f"{issue_col}_pred_c{c}"
@@ -448,61 +511,81 @@ def _run_stage1_for_outer_fold(df_train, df_val, sample_weights_train=None):
 
 def run_approach_b_nested(df, n_classes, fold_tracker, results, weights):
     """Nested CV for Approach B: re-run Stage 1 inside each outer fold."""
-    print("\n  --- Approach B: Predicted issues + demographics (NESTED CV) ---")
+    print("\n  --- Approach B: Predicted issues + strict demographics (NESTED CV) ---")
 
     skf = StratifiedKFold(n_splits=N_FOLDS, shuffle=True, random_state=RANDOM_STATE)
-    X_demo, y_vote, le, _ = prepare_features(df, DEMO_COLS, TARGET)
+    X_demo, y_vote, le, _ = prepare_features(
+        df, PREDICTED_ISSUE_STAGE2_COLS, TARGET)
     classes = np.arange(n_classes)
+    valid_indices = df.index[df[TARGET].notna()]
+    weights = align_sample_weights_to_target(df, weights, TARGET)
+
+    prepared_folds = []
+    for fold, (train_idx, val_idx) in enumerate(skf.split(X_demo, y_vote)):
+        df_train = df.loc[valid_indices[train_idx]]
+        df_val = df.loc[valid_indices[val_idx]]
+
+        w_train = weights[train_idx] if weights is not None else None
+        w_val = weights[val_idx] if weights is not None else None
+
+        # Stage 1 inside this outer fold: CV selection on train, re-train on
+        # full train + predict val. Reuse these features for all Stage 2 models.
+        train_preds, val_preds = _run_stage1_for_outer_fold(
+            df_train, df_val, sample_weights_train=w_train)
+
+        pred_cols = require_matching_pred_cols(
+            train_preds, val_preds, f"Approach B fold {fold}"
+        )
+
+        X_tr = np.column_stack([
+            X_demo[train_idx],
+            train_preds[pred_cols].values
+        ])
+        X_vl = np.column_stack([
+            X_demo[val_idx],
+            val_preds[pred_cols].values
+        ])
+
+        impute_fold(X_tr, X_vl)
+        scaler = StandardScaler()
+        X_tr_s = scaler.fit_transform(X_tr)
+        X_vl_s = scaler.transform(X_vl)
+
+        prepared_folds.append({
+            "fold": fold,
+            "train_idx": train_idx,
+            "val_idx": val_idx,
+            "X_train": X_tr_s,
+            "X_val": X_vl_s,
+            "y_train": y_vote[train_idx],
+            "y_val": y_vote[val_idx],
+            "w_train": w_train,
+            "w_val": w_val,
+        })
+        print(f"    prepared fold {fold} with {len(pred_cols)} predicted-issue features")
 
     for model_name, model_fn in MODELS.items():
         fold_metrics = []
         oof_preds = np.full(len(y_vote), -1, dtype=int)
         oof_proba = np.zeros((len(y_vote), n_classes))
 
-        for fold, (train_idx, val_idx) in enumerate(skf.split(X_demo, y_vote)):
-            # Get df subsets using the valid index from prepare_features
-            valid_mask = df[TARGET].notna()
-            valid_indices = df.index[valid_mask]
-            df_train = df.loc[valid_indices[train_idx]]
-            df_val = df.loc[valid_indices[val_idx]]
-
-            w_train = weights[train_idx] if weights is not None else None
-            w_val = weights[val_idx] if weights is not None else None
-
-            # Stage 1 inside this outer fold: CV selection on train, re-train on
-            # full train + predict val. Train and val features use the SAME model.
-            train_preds, val_preds = _run_stage1_for_outer_fold(
-                df_train, df_val, sample_weights_train=w_train)
-
-            # Assemble Stage 2 features
-            pred_cols = [c for c in train_preds.columns if c in val_preds.columns]
-            X_tr = np.column_stack([
-                X_demo[train_idx],
-                train_preds[pred_cols].values
-            ])
-            X_vl = np.column_stack([
-                X_demo[val_idx],
-                val_preds[pred_cols].values
-            ])
-            y_tr = y_vote[train_idx]
-            y_vl = y_vote[val_idx]
-
-            # Impute + scale
-            impute_fold(X_tr, X_vl)
-            scaler = StandardScaler()
-            X_tr_s = scaler.fit_transform(X_tr)
-            X_vl_s = scaler.transform(X_vl)
-
+        for prepared in prepared_folds:
             model = model_fn(n_classes)
-            model.fit(X_tr_s, y_tr, sample_weight=w_train)
+            model.fit(
+                prepared["X_train"],
+                prepared["y_train"],
+                sample_weight=prepared["w_train"],
+            )
 
-            y_pred = model.predict(X_vl_s)
-            y_prob = model.predict_proba(X_vl_s)
+            y_pred = model.predict(prepared["X_val"])
+            y_prob = model.predict_proba(prepared["X_val"])
 
-            oof_preds[val_idx] = y_pred
-            oof_proba[val_idx] = y_prob
+            oof_preds[prepared["val_idx"]] = y_pred
+            oof_proba[prepared["val_idx"]] = y_prob
 
-            metrics = evaluate_fold(y_vl, y_prob, y_pred, classes, sample_weight=w_val)
+            metrics = evaluate_fold(
+                prepared["y_val"], y_prob, y_pred, classes,
+                sample_weight=prepared["w_val"])
             fold_metrics.append(metrics)
 
         avg_metrics = {}
@@ -549,13 +632,13 @@ def run_stage2(df, issue_pred_df):
     n_classes = len(class_names)
     print(f"  Classes: {list(class_names)}")
 
-    # ── Approach A: Actual issues + demographics (with ideology) ──
-    print("\n  --- Approach A: Actual issues + demographics ---")
+    # ── Approach A: Actual issues + strict demographics ──
+    print("\n  --- Approach A: Actual issues + strict demographics ---")
     X_A, y_A, feat_names_A = _run_approach(
-        df, DEMO_COLS + ISSUE_COLS, "A_actual_issues", n_classes,
+        df, DEMO_STRICT + ISSUE_COLS, "A_actual_issues", n_classes,
         results, fold_tracker, weights)
 
-    # ── Approach B: Predicted issue probabilities + demographics (nested CV) ──
+    # ── Approach B: Predicted issue probabilities + strict demographics ──
     run_approach_b_nested(df, n_classes, fold_tracker, results, weights)
 
     # ── Approach C: Demographics with ideology (original baseline) ──
@@ -687,11 +770,12 @@ def run_ablation(df, sample_weights=None):
     base_cols = DEMO_COLS + ISSUE_COLS
     X_base, y_base, _, _ = prepare_features(df, base_cols, TARGET)
     n_classes = len(np.unique(y_base))
+    aligned_weights = align_sample_weights_to_target(df, sample_weights, TARGET)
 
     # Baseline (all features)
     xgb_fn = MODELS["XGBoost"]
     base_metrics, _, _, _ = cross_validate_model(
-        xgb_fn, X_base, y_base, n_classes, sample_weights=sample_weights)
+        xgb_fn, X_base, y_base, n_classes, sample_weights=aligned_weights)
     base_ba = base_metrics["balanced_accuracy"]
     print(f"  Baseline (all issues): {base_ba:.4f}")
 
@@ -702,7 +786,7 @@ def run_ablation(df, sample_weights=None):
         reduced_cols = DEMO_COLS + [c for c in ISSUE_COLS if c != issue]
         X_r, y_r, _, _ = prepare_features(df, reduced_cols, TARGET)
         m, _, _, _ = cross_validate_model(xgb_fn, X_r, y_r, n_classes,
-                                          sample_weights=sample_weights)
+                                          sample_weights=aligned_weights)
         drop = base_ba - m["balanced_accuracy"]
         loo_results.append({
             "issue_removed": issue,
@@ -732,7 +816,7 @@ def run_ablation(df, sample_weights=None):
         cum_cols = DEMO_COLS + top_k
         X_c, y_c, _, _ = prepare_features(df, cum_cols, TARGET)
         m, _, _, _ = cross_validate_model(xgb_fn, X_c, y_c, n_classes,
-                                          sample_weights=sample_weights)
+                                          sample_weights=aligned_weights)
         cum_results.append({
             "n_issues": k,
             "last_added": top_k[-1],
@@ -790,13 +874,13 @@ def run_shap(X, y, feature_names, le_vote):
         print("\n  Top 20 features by mean |SHAP|:")
         shap_rows = []
         for i, (feat, val) in enumerate(importance[:20]):
-            category = "demographic" if feat in DEMO_COLS else "issue"
+            category = _feature_category(feat)
             print(f"    {i+1:2d}. {feat:35s} {val:.4f}  ({category})")
             shap_rows.append({"rank": i + 1, "feature": feat, "mean_abs_shap": val, "category": category})
 
         # Save full SHAP importance
         shap_df = pd.DataFrame([
-            {"feature": f, "mean_abs_shap": v, "category": "demographic" if f in DEMO_COLS else "issue"}
+            {"feature": f, "mean_abs_shap": v, "category": _feature_category(f)}
             for f, v in importance
         ])
         shap_df.to_csv(OUT_DIR / "shap_importance.csv", index=False)
@@ -827,13 +911,14 @@ def run_lifestyle_vs_conditions(df, sample_weights=None):
 
     xgb_fn = MODELS["XGBoost"]
     results = []
+    aligned_weights = align_sample_weights_to_target(df, sample_weights, TARGET)
 
     def _eval_config(name, cols):
         cols_exist = [c for c in cols if c in df.columns]
         X, y, _, _ = prepare_features(df, cols_exist, TARGET)
         n_classes = len(np.unique(y))
         metrics, _, _, _ = cross_validate_model(
-            xgb_fn, X, y, n_classes, sample_weights=sample_weights
+            xgb_fn, X, y, n_classes, sample_weights=aligned_weights
         )
         results.append({"config": name, "n_features": len(cols_exist), **metrics})
         print(f"  {name:35s} ({len(cols_exist):2d} feats)  "
@@ -985,7 +1070,10 @@ def main():
     run_shap(X_A, y_A, feat_names_A, le_vote)
 
     # Significance tests (bootstrap on per-sample OOF predictions)
-    run_significance_tests(fold_tracker, y_A, sample_weights=weights)
+    run_significance_tests(
+        fold_tracker, y_A,
+        sample_weights=align_sample_weights_to_target(df, weights, TARGET),
+    )
 
     # Ablation study
     run_ablation(df, sample_weights=weights)
@@ -1012,12 +1100,12 @@ def main():
         print("  KEY COMPARISONS (XGBoost balanced accuracy)")
         print("=" * 70)
         pairs = [
-            ("Ideology adds to demographics", "C_demo_with_ideology", "Cs_demo_strict"),
-            ("Issues add to demo+ideology", "A_actual_issues", "C_demo_with_ideology"),
-            ("Issues + demo vs demo only (incl ideology)", "A_actual_issues", "Cs_demo_strict"),
+            ("Ideology adds to strict demographics", "C_demo_with_ideology", "Cs_demo_strict"),
+            ("Issues + strict demo vs demo+ideology", "A_actual_issues", "C_demo_with_ideology"),
+            ("Issues + strict demo vs strict demo", "A_actual_issues", "Cs_demo_strict"),
             ("Issues only vs Party only", "F_issues_only", "D_party_only"),
             ("Full (party+issues+demo) vs Party only", "G_full_with_party", "D_party_only"),
-            ("Predicted issues vs Actual issues", "B_predicted_issues", "A_actual_issues"),
+            ("Predicted issues+strict demo vs actual issues+strict demo", "B_predicted_issues", "A_actual_issues"),
         ]
         for label, a, b in pairs:
             if a in ba.index and b in ba.index:

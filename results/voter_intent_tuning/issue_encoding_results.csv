@@ -1,0 +1,13 @@
+cohort,config,canonical_config,encoding,stage2_model,n,n_features_raw,n_features_encoded,balanced_accuracy,macro_f1,log_loss,brier_score
+all_respondents,issue_categorical_issues_only,issues_only,numeric_ordinal,xgb_current,4755,45,45,0.8957557658537657,0.895884088508736,0.24331580542053927,0.07489841361873294
+all_respondents,issue_categorical_issues_only,issues_only,issue_onehot,xgb_current,4755,45,310,0.8966486611587384,0.8967162862548037,0.24683857190210362,0.07572912015142215
+all_respondents,issue_categorical+party_id+ideology,issues+party_id+ideology,numeric_ordinal,xgb_current,4755,47,47,0.9442104224060371,0.9448380896702507,0.14963186148706992,0.04234961895190386
+all_respondents,issue_categorical+party_id+ideology,issues+party_id+ideology,issue_onehot,xgb_current,4755,47,312,0.9449350269622563,0.9453679825927317,0.15833972898272222,0.04379283662808536
+all_respondents,issue_categorical+demographics+ideology,issues+demographics+ideology,numeric_ordinal,xgb_current,4755,56,56,0.910222051707003,0.9104492834503679,0.20865868619610003,0.06400131977882584
+all_respondents,issue_categorical+demographics+ideology,issues+demographics+ideology,issue_onehot,xgb_current,4755,56,350,0.9088681890036903,0.9092508662478112,0.2114043687644611,0.06525304882422266
+independents_plus_leaners,issue_categorical_issues_only,issues_only,numeric_ordinal,xgb_current,1303,45,45,0.8822146503515109,0.8820449777649169,0.27898253630024,0.08691741767073699
+independents_plus_leaners,issue_categorical_issues_only,issues_only,issue_onehot,xgb_current,1303,45,310,0.8571155361848288,0.8573491773955944,0.30535499392549725,0.0954548838263952
+independents_plus_leaners,issue_categorical+party_id+ideology,issues+party_id+ideology,numeric_ordinal,xgb_current,1303,47,47,0.9081297136029804,0.908140336414409,0.20721565299429703,0.06413058659838228
+independents_plus_leaners,issue_categorical+party_id+ideology,issues+party_id+ideology,issue_onehot,xgb_current,1303,47,312,0.9072493014026591,0.9072142493836111,0.22768114478906648,0.0703922013844255
+independents_plus_leaners,issue_categorical+demographics+ideology,issues+demographics+ideology,numeric_ordinal,xgb_current,1303,56,56,0.8859611955782393,0.8858599178006277,0.2717387243773854,0.08524103458846163
+independents_plus_leaners,issue_categorical+demographics+ideology,issues+demographics+ideology,issue_onehot,xgb_current,1303,56,350,0.8739577871649535,0.8740590721336687,0.29041405604092263,0.09035971139679491

@@ -13,6 +13,9 @@ Figures:
 """
 
 import pandas as pd
+import matplotlib
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.lines import Line2D
@@ -44,83 +47,83 @@ C_NEUTRAL = "#888888"
 
 # Domain colors for Stage 1 dot plot (11 domains)
 DOMAIN_COLORS = {
-    "Economy":       "#E45756",
-    "Immigration":   "#4878A8",
-    "Guns":          "#54A24B",
-    "Climate":       "#F58518",
-    "Abortion":      "#B07AA1",
-    "Race":          "#FF9DA7",
-    "Populism":      "#9D755D",
-    "Gender":        "#76B7B2",
-    "Trade":         "#BAB0AC",
-    "Diversity":     "#EECA3B",
-    "Healthcare":    "#AF7AA1",
+    "Economia":      "#E45756",
+    "Imigração":     "#4878A8",
+    "Armas":         "#54A24B",
+    "Clima":         "#F58518",
+    "Aborto":        "#B07AA1",
+    "Raça":          "#FF9DA7",
+    "Populismo":     "#9D755D",
+    "Gênero":        "#76B7B2",
+    "Comércio":      "#BAB0AC",
+    "Diversidade":   "#EECA3B",
+    "Saúde":         "#AF7AA1",
 }
 
 ISSUE_DOMAINS = {
-    "econ_opportunity": "Economy", "econ_mobility": "Economy",
-    "econ_mobility_summary": "Economy", "tax_millionaires": "Economy",
-    "deficit_importance": "Economy", "min_wage": "Economy",
-    "immig_level": "Immigration", "immig_policy1": "Immigration",
-    "immig_policy2": "Immigration", "immig_policy3": "Immigration",
-    "gun_difficulty": "Guns", "gun_background": "Guns",
-    "gun_assault_ban": "Guns",
-    "climate_impact": "Climate", "climate_regulation": "Climate",
-    "abortion_access": "Abortion", "abortion_scale": "Abortion",
-    "abortion_detail": "Abortion",
-    "racial_selfhelp": "Race", "racial_slavery": "Race",
-    "racial_deserve": "Race", "racial_tryharder": "Race",
-    "populism_insiders": "Populism", "populism_rich": "Populism",
-    "fairshare_summary": "Populism",
-    "gender_trad_summary": "Gender", "gender_equality": "Gender",
-    "gender_discrim": "Gender",
-    "trade_summary": "Trade",
-    "diversity_summary": "Diversity",
-    "healthcare_spending": "Healthcare",
+    "econ_opportunity": "Economia", "econ_mobility": "Economia",
+    "econ_mobility_summary": "Economia", "tax_millionaires": "Economia",
+    "deficit_importance": "Economia", "min_wage": "Economia",
+    "immig_level": "Imigração", "immig_policy1": "Imigração",
+    "immig_policy2": "Imigração", "immig_policy3": "Imigração",
+    "gun_difficulty": "Armas", "gun_background": "Armas",
+    "gun_assault_ban": "Armas",
+    "climate_impact": "Clima", "climate_regulation": "Clima",
+    "abortion_access": "Aborto", "abortion_scale": "Aborto",
+    "abortion_detail": "Aborto",
+    "racial_selfhelp": "Raça", "racial_slavery": "Raça",
+    "racial_deserve": "Raça", "racial_tryharder": "Raça",
+    "populism_insiders": "Populismo", "populism_rich": "Populismo",
+    "fairshare_summary": "Populismo",
+    "gender_trad_summary": "Gênero", "gender_equality": "Gênero",
+    "gender_discrim": "Gênero",
+    "trade_summary": "Comércio",
+    "diversity_summary": "Diversidade",
+    "healthcare_spending": "Saúde",
 }
 
 # Pretty names for issues
 ISSUE_LABELS = {
-    "econ_opportunity": "Economic Opportunity",
-    "econ_mobility": "Economic Mobility",
-    "econ_mobility_summary": "Mobility (binary)",
-    "tax_millionaires": "Tax Millionaires",
-    "deficit_importance": "Deficit Importance",
-    "min_wage": "Minimum Wage",
-    "immig_level": "Immigration Level",
-    "immig_policy1": "Immigration Policy 1",
-    "immig_policy2": "Immigration Policy 2",
-    "immig_policy3": "Immigration Policy 3",
-    "gun_difficulty": "Gun Purchase Difficulty",
-    "gun_background": "Gun Background Checks",
-    "gun_assault_ban": "Assault Weapon Ban",
-    "climate_impact": "Climate Impact",
-    "climate_regulation": "Climate Regulation",
-    "abortion_access": "Abortion Access",
-    "abortion_scale": "Abortion Scale",
-    "abortion_detail": "Abortion (detailed)",
-    "racial_selfhelp": "Racial Self-help",
-    "racial_slavery": "Racial Slavery Legacy",
-    "racial_deserve": "Racial Deserve",
-    "racial_tryharder": "Racial Try Harder",
-    "populism_insiders": "Populism: Insiders",
-    "populism_rich": "Populism: Rich",
-    "fairshare_summary": "Fair Share",
-    "gender_trad_summary": "Gender Trad. Roles",
-    "gender_equality": "Gender Equality",
-    "gender_discrim": "Gender Discrimination",
-    "trade_summary": "Trade Policy",
-    "diversity_summary": "Diversity Value",
-    "healthcare_spending": "Healthcare Spending",
+    "econ_opportunity": "Oportunidade econômica",
+    "econ_mobility": "Mobilidade econômica",
+    "econ_mobility_summary": "Mobilidade (binária)",
+    "tax_millionaires": "Taxar milionários",
+    "deficit_importance": "Importância do déficit",
+    "min_wage": "Salário mínimo",
+    "immig_level": "Nível de imigração",
+    "immig_policy1": "Política de imigração 1",
+    "immig_policy2": "Política de imigração 2",
+    "immig_policy3": "Política de imigração 3",
+    "gun_difficulty": "Dificuldade para comprar armas",
+    "gun_background": "Checagem de antecedentes",
+    "gun_assault_ban": "Banimento de armas de assalto",
+    "climate_impact": "Impacto do clima",
+    "climate_regulation": "Regulação climática",
+    "abortion_access": "Acesso ao aborto",
+    "abortion_scale": "Escala de aborto",
+    "abortion_detail": "Aborto (detalhado)",
+    "racial_selfhelp": "Raça: autoajuda",
+    "racial_slavery": "Raça: legado da escravidão",
+    "racial_deserve": "Raça: merecimento",
+    "racial_tryharder": "Raça: esforço",
+    "populism_insiders": "Populismo: insiders",
+    "populism_rich": "Populismo: ricos",
+    "fairshare_summary": "Parcela justa",
+    "gender_trad_summary": "Papéis tradicionais",
+    "gender_equality": "Igualdade de gênero",
+    "gender_discrim": "Discriminação de gênero",
+    "trade_summary": "Política comercial",
+    "diversity_summary": "Valor da diversidade",
+    "healthcare_spending": "Gasto em saúde",
 }
 
 RESULTS = Path("results")
 FIGS = Path("figures")
 
 
-def save(fig, name):
-    fig.savefig(FIGS / f"{name}.png")
-    fig.savefig(FIGS / f"{name}.pdf")
+def save(fig, name, **kw):
+    fig.savefig(FIGS / f"{name}.png", **kw)
+    fig.savefig(FIGS / f"{name}.pdf", **kw)
     plt.close(fig)
     print(f"  saved {name}")
 
@@ -139,17 +142,17 @@ def fig0_pipeline():
 
     # Boxes
     boxes = {
-        "demo":      (1.0, 3.8, C_DEMO,       "Demographics\n(10 features)"),
-        "stage1":    (3.5, 3.8, "#DDD",        "Stage 1\nRandom Forest\n(per issue)"),
-        "pred":      (6.0, 3.8, "#FFDDDD",     "Predicted\nIssue Opinions"),
-        "obs":       (6.0, 2.0, "#DDFFDD",     "Observed\nIssue Opinions"),
-        "stage2":    (8.0, 2.9, "#DDD",        "Stage 2\nXGBoost / RF"),
-        "vote":      (9.5, 2.9, "#FFFFCC",     "Vote\nHarris vs Trump"),
+        "demo":      (1.0, 3.8, C_DEMO,       "Demografia\n(10 variáveis)"),
+        "stage1":    (3.5, 3.8, "#DDD",        "Estágio 1\nRandom Forest\n(por pauta)"),
+        "pred":      (6.0, 3.8, "#FFDDDD",     "Pautas\nprevistas"),
+        "obs":       (6.0, 2.0, "#DDFFDD",     "Pautas\nobservadas"),
+        "stage2":    (8.0, 2.9, "#DDD",        "Estágio 2\nXGBoost / RF"),
+        "vote":      (9.5, 2.9, "#FFFFCC",     "Voto\nHarris vs Trump"),
     }
 
     for key, (x, y, color, text) in boxes.items():
         ax.text(x, y, text, ha="center", va="center", fontsize=9,
-                fontweight="bold" if "Stage" in text else "normal",
+                fontweight="bold" if "Estágio" in text else "normal",
                 bbox=dict(facecolor=color, **box_kw))
 
     # Arrows
@@ -175,20 +178,20 @@ def fig0_pipeline():
                                 connectionstyle="arc3,rad=-0.3"))
 
     # Labels on paths
-    ax.text(2.5, 4.3, "Approach B\n(predicted)", fontsize=9.5,
+    ax.text(2.5, 4.4, "Abordagem B\n(prevista)", fontsize=9.5,
             ha="center", color="#666", style="italic")
-    ax.text(6.8, 1.6, "Approach A\n(observed)", fontsize=9.5,
+    ax.text(6.85, 1.45, "Abordagem A\n(observada)", fontsize=9.5,
             ha="center", color="#666", style="italic")
 
     # Nested CV note
     ax.text(3.5, 1.0,
-            "Nested CV: Stage 1 retrained inside each outer fold\n"
-            "to prevent information leakage from predicted issues",
+            "CV aninhada: Estágio 1 retreinado em cada dobra externa\n"
+            "para evitar vazamento nas pautas previstas",
             fontsize=9.5, ha="center", color="#666",
             bbox=dict(facecolor="#F8F8F8", edgecolor="#CCC",
                       boxstyle="round,pad=0.3"))
 
-    fig.suptitle("Two-Stage Pipeline Architecture", fontsize=14,
+    fig.suptitle("Arquitetura do pipeline em duas etapas", fontsize=14,
                  fontweight="bold", y=0.98)
     save(fig, "fig0_pipeline_schematic")
 
@@ -220,20 +223,20 @@ def fig1_stage1_dotplot():
     # Reference: BA=0.5 is not chance for multiclass, but marks "halfway"
     # between random (1/K) and perfect (1.0) — useful as a visual anchor
     ax.axvline(0.5, color="#999", linestyle="--", linewidth=0.8, alpha=0.7)
-    ax.set_xlabel("Balanced Accuracy (Random Forest, 5-fold CV)")
-    ax.set_title("Stage 1: Demographic Predictability of Issue Opinions")
+    ax.set_xlabel("Acurácia balanceada (Random Forest, CV 5-fold)")
+    ax.set_title("Estágio 1: previsibilidade demográfica das pautas")
     ax.set_xlim(0.30, 0.85)
 
     # Domain legend
     handles = [Line2D([0], [0], marker="o", color="w",
                       markerfacecolor=c, markersize=8, label=d)
                for d, c in DOMAIN_COLORS.items()]
-    ax.legend(handles=handles, loc="lower right", fontsize=8, ncol=2,
-              framealpha=0.9)
+    ax.legend(handles=handles, loc="upper left", bbox_to_anchor=(1.01, 1.0),
+              fontsize=8, framealpha=0.9, title="Domínio")
 
     ax.grid(axis="x", alpha=0.3)
     fig.tight_layout()
-    save(fig, "fig1_stage1_predictability")
+    save(fig, "fig1_stage1_predictability", bbox_inches="tight")
 
 
 # ── Figure 2: Stage 2 Approach Comparison ────────────────────────────────────
@@ -242,19 +245,19 @@ def fig2_stage2_comparison():
     df = pd.read_csv(RESULTS / "stage2_results.csv")
     sig = pd.read_csv(RESULTS / "significance_tests.csv")
 
-    # Best model per approach
-    best = df.loc[df.groupby("approach")["balanced_accuracy"].idxmax()].copy()
+    # Fixed XGBoost per approach (matches the thesis tables/methodology)
+    best = df[df["model"] == "XGBoost"].copy()
     best = best.sort_values("balanced_accuracy")
 
     approach_labels = {
-        "Cs_demo_strict":      "Cs: Demographics only",
-        "F_issues_only":       "F: Issues only",
-        "C_demo_with_ideology":"C: Demo + Ideology",
-        "B_predicted_issues":  "B: Predicted Issues + Demo",
-        "A_actual_issues":     "A: Observed Issues + Demo",
-        "D_party_only":        "D: Party ID only",
-        "E_party_demo":        "E: Party + Demo",
-        "G_full_with_party":   "G: Party + Issues + Demo",
+        "Cs_demo_strict":      "Cs: só demografia",
+        "F_issues_only":       "F: só pautas",
+        "C_demo_with_ideology":"C: demo + ideologia",
+        "B_predicted_issues":  "B: pautas previstas + demo",
+        "A_actual_issues":     "A: pautas observadas + demo",
+        "D_party_only":        "D: só partido",
+        "E_party_demo":        "E: partido + demo",
+        "G_full_with_party":   "G: partido + pautas + demo",
     }
 
     fig, ax = plt.subplots(figsize=(10, 5.5))
@@ -289,9 +292,9 @@ def fig2_stage2_comparison():
     ax.set_yticks(y_pos)
     ax.set_yticklabels([approach_labels.get(a, a) for a in approaches_list],
                        fontsize=10)
-    ax.set_xlabel("Balanced Accuracy (best model, 5-fold CV ± std)")
-    ax.set_title("Stage 2: Vote Prediction by Modeling Approach")
-    ax.set_xlim(0.84, 0.99)
+    ax.set_xlabel("Acurácia balanceada (XGBoost, CV 5-fold ± desvio)")
+    ax.set_title("Estágio 2: predição de voto por abordagem")
+    ax.set_xlim(0.60, 1.05)
 
     # Significance brackets — read p-values from CSV
     def get_y(approach):
@@ -336,11 +339,11 @@ def fig2_stage2_comparison():
     # Legend
     legend_handles = [
         Line2D([0], [0], marker="o", color="w", markerfacecolor=C_DEMO,
-               markersize=8, label="Demographics-based"),
+               markersize=8, label="Base demográfica"),
         Line2D([0], [0], marker="o", color="w", markerfacecolor=C_ISSUE,
-               markersize=8, label="Issue-based"),
+               markersize=8, label="Base em pautas"),
         Line2D([0], [0], marker="o", color="w", markerfacecolor="#9467BD",
-               markersize=8, label="Party-based"),
+               markersize=8, label="Base partidária"),
     ]
     ax.legend(handles=legend_handles, loc="lower left", fontsize=9)
 
@@ -367,17 +370,17 @@ def fig3_ablation_curve():
     fig, ax = plt.subplots(figsize=(9, 5))
 
     ax.plot(df["n_issues"], df["balanced_accuracy"], "o-",
-            color=C_ISSUE, markersize=5, linewidth=2, label="Issues + Demo")
+            color=C_ISSUE, markersize=5, linewidth=2, label="Pautas + demo")
 
     # Party ID reference line
     ax.axhline(party_ba, color="#9467BD", linestyle="--", linewidth=1.5,
                alpha=0.8)
-    ax.text(28, party_ba + 0.001, f"Party ID only ({party_ba:.3f})",
+    ax.text(28, party_ba + 0.001, f"Só partido ({party_ba:.3f})",
             fontsize=9, color="#9467BD", ha="right", va="bottom")
 
     # 5-issue annotation
     ba_5 = df.loc[df["n_issues"] == 5, "balanced_accuracy"].values[0]
-    ax.annotate(f"5 issues → {ba_5:.3f}",
+    ax.annotate(f"5 pautas → {ba_5:.3f}",
                 xy=(5, ba_5), xytext=(8, ba_5 - 0.012),
                 fontsize=9, color="#333",
                 arrowprops=dict(arrowstyle="->", color="#555", linewidth=0.8))
@@ -385,19 +388,20 @@ def fig3_ablation_curve():
     # 1-issue annotation
     ba_1 = df.loc[df["n_issues"] == 1, "balanced_accuracy"].values[0]
     issue_1_name = df.loc[df["n_issues"] == 1, "last_added"].values[0]
-    ax.annotate(f"{issue_1_name} → {ba_1:.3f}",
+    issue_1_label = ISSUE_LABELS.get(issue_1_name, issue_1_name)
+    ax.annotate(f"{issue_1_label} → {ba_1:.3f}",
                 xy=(1, ba_1), xytext=(4, ba_1 - 0.010),
                 fontsize=9, color="#333",
                 arrowprops=dict(arrowstyle="->", color="#555", linewidth=0.8))
 
     # Demo-only baseline
     ax.axhline(demo_ba, color=C_DEMO, linestyle=":", linewidth=1.2, alpha=0.7)
-    ax.text(28, demo_ba - 0.003, f"Demo only ({demo_ba:.3f})",
+    ax.text(28, demo_ba - 0.003, f"Só demo ({demo_ba:.3f})",
             fontsize=9, color=C_DEMO, ha="right", va="top")
 
-    ax.set_xlabel("Number of Issues Added (ranked by SHAP importance)")
-    ax.set_ylabel("Balanced Accuracy")
-    ax.set_title("Cumulative Issue Addition: Diminishing Returns")
+    ax.set_xlabel("Número de pautas adicionadas (ordem por SHAP)")
+    ax.set_ylabel("Acurácia balanceada")
+    ax.set_title("Adição cumulativa de pautas: retornos decrescentes")
     ax.set_xlim(0, 32)
     ax.set_ylim(0.87, 0.945)
     ax.grid(alpha=0.3)
@@ -411,41 +415,54 @@ def fig3_ablation_curve():
 def fig4_shap_importance():
     df = pd.read_csv(RESULTS / "shap_importance.csv")
     df = df.sort_values("mean_abs_shap", ascending=False)
-    top = df.head(15).copy()
+    top = df.head(30).copy()
     top = top.iloc[::-1]  # reverse for horizontal bar (top at top)
 
-    fig, ax = plt.subplots(figsize=(8, 6))
+    fig, ax = plt.subplots(figsize=(8, 9))
 
     colors = [C_DEMO if cat == "demographic" else C_ISSUE
               for cat in top["category"]]
 
-    # Pretty labels
-    feature_labels = {
-        "age_group": "Age Group", "sex": "Sex", "ideology": "Ideology",
-        "climate_impact": "Climate Impact", "gun_difficulty": "Gun Difficulty",
-        "racial_tryharder": "Racial: Try Harder", "education": "Education",
-        "gun_assault_ban": "Assault Weapon Ban",
-        "climate_regulation": "Climate Regulation",
-        "racial_slavery": "Racial: Slavery Legacy",
-        "abortion_detail": "Abortion (detailed)",
-        "racial_selfhelp": "Racial: Self-help",
-        "immig_policy1": "Immigration Policy 1",
-        "racial_deserve": "Racial: Deserve",
-        "church_attendance": "Church Attendance",
+    # Rótulos de variáveis demográficas (pautas vêm de ISSUE_LABELS)
+    demo_labels = {
+        "age_group": "Faixa etária", "sex": "Sexo", "ideology": "Ideologia",
+        "education": "Escolaridade", "income": "Renda",
+        "church_attendance": "Frequência religiosa",
+        "employment_status": "Situação de emprego", "born_us": "Nascido nos EUA",
     }
-    labels = [feature_labels.get(f, f) for f in top["feature"]]
+    # Categorias de variáveis nominais codificadas como one-hot (var=valor)
+    onehot_labels = {
+        "race=1.0": "Raça: branco", "race=2.0": "Raça: negro",
+        "race=3.0": "Raça: hispânico", "race=4.0": "Raça: asiático",
+        "race=5.0": "Raça: indígena/outra", "race=6.0": "Raça: multirracial",
+        "marital=1.0": "Casado(a)", "marital=2.0": "Viúvo(a)",
+        "marital=3.0": "Divorciado(a)", "marital=4.0": "Separado(a)",
+        "marital=5.0": "Solteiro(a)",
+        "hispanic=1.0": "Origem hispânica", "hispanic=2.0": "Sem origem hispânica",
+    }
+
+    def pretty(feature):
+        if feature in ISSUE_LABELS:
+            return ISSUE_LABELS[feature]
+        if feature in demo_labels:
+            return demo_labels[feature]
+        if feature in onehot_labels:
+            return onehot_labels[feature]
+        return feature
+
+    labels = [pretty(f) for f in top["feature"]]
 
     ax.barh(range(len(top)), top["mean_abs_shap"].values,
             color=colors, edgecolor="white", height=0.7)
 
     ax.set_yticks(range(len(top)))
     ax.set_yticklabels(labels, fontsize=10)
-    ax.set_xlabel("Mean |SHAP| Value")
-    ax.set_title("Feature Importance: Approach A (Observed Issues + Demo)")
+    ax.set_xlabel("Valor médio |SHAP|")
+    ax.set_title("Importância de variáveis: pautas observadas + demografia")
 
     legend_handles = [
-        mpatches.Patch(color=C_DEMO, label="Demographic"),
-        mpatches.Patch(color=C_ISSUE, label="Issue"),
+        mpatches.Patch(color=C_DEMO, label="Demografia"),
+        mpatches.Patch(color=C_ISSUE, label="Pauta"),
     ]
     ax.legend(handles=legend_handles, loc="lower right", fontsize=10)
 
@@ -474,7 +491,7 @@ def fig5_lifestyle_conditions():
     y_positions = [1, 0]
     base_bars = [cond_ba, life_ba]
     lift_bars = [lift_life_over_cond, lift_cond_over_life]
-    labels = ["Conditions\n→ +Lifestyle", "Lifestyle\n→ +Conditions"]
+    labels = ["Condições\n→ +estilo de vida", "Estilo de vida\n→ +condições"]
     lift_colors = [C_LIFESTYLE, C_CONDITIONS]
 
     for i, (y, base, lift, lbl, lc) in enumerate(
@@ -488,27 +505,27 @@ def fig5_lifestyle_conditions():
 
     ax1.set_yticks(y_positions)
     ax1.set_yticklabels(labels, fontsize=10)
-    ax1.set_xlabel("Balanced Accuracy")
-    ax1.set_title("Asymmetric Lift")
+    ax1.set_xlabel("Acurácia balanceada")
+    ax1.set_title("Ganho assimétrico")
     ax1.set_xlim(0, 1.0)
     ax1.axvline(0.5, color="#999", linestyle="--", linewidth=0.8, alpha=0.5)
 
     legend_handles = [
-        mpatches.Patch(color="#DDD", label="Base model"),
-        mpatches.Patch(color=C_LIFESTYLE, label="Lifestyle lift"),
-        mpatches.Patch(color=C_CONDITIONS, label="Conditions lift"),
+        mpatches.Patch(color="#DDD", label="Modelo base"),
+        mpatches.Patch(color=C_LIFESTYLE, label="Ganho de estilo de vida"),
+        mpatches.Patch(color=C_CONDITIONS, label="Ganho de condições"),
     ]
     ax1.legend(handles=legend_handles, loc="upper left", fontsize=9)
     ax1.grid(axis="x", alpha=0.3)
 
     # ── Right panel: Sub-component accuracy ──
     sub_configs = [
-        ("conditions_only",          "Conditions",       C_CONDITIONS),
-        ("entertainment_only",       "Entertainment\nMedia", "#BAB0AC"),
-        ("political_media_only",     "Political\nMedia",    "#9467BD"),
-        ("engagement_attitudes_only","Engagement\nAttitudes", C_LIFESTYLE),
-        ("all_media_lifestyle",      "All\nLifestyle",      C_LIFESTYLE),
-        ("media_conditions_combined","Combined",            "#333333"),
+        ("conditions_only",          "Condições",       C_CONDITIONS),
+        ("entertainment_only",       "Mídia de\nentretenimento", "#BAB0AC"),
+        ("political_media_only",     "Mídia\npolítica",    "#9467BD"),
+        ("engagement_attitudes_only","Engajamento\ne atitudes", C_LIFESTYLE),
+        ("all_media_lifestyle",      "Estilo de\nvida total",      C_LIFESTYLE),
+        ("media_conditions_combined","Combinado",            "#333333"),
     ]
 
     bars_data = []
@@ -540,13 +557,13 @@ def fig5_lifestyle_conditions():
 
     ax2.set_xticks(x_pos)
     ax2.set_xticklabels(labels_r, fontsize=9, ha="center")
-    ax2.set_ylabel("Balanced Accuracy")
-    ax2.set_title("Sub-component Decomposition")
+    ax2.set_ylabel("Acurácia balanceada")
+    ax2.set_title("Decomposição por subcomponente")
     ax2.set_ylim(0, 0.9)
     ax2.axhline(0.5, color="#999", linestyle="--", linewidth=0.8, alpha=0.5)
     ax2.grid(axis="y", alpha=0.3)
 
-    fig.suptitle("Lifestyle vs. Living Conditions as Vote Predictors",
+    fig.suptitle("Estilo de vida versus condições materiais como preditores do voto",
                  fontsize=14, fontweight="bold", y=1.02)
     fig.tight_layout()
     save(fig, "fig5_lifestyle_vs_conditions")

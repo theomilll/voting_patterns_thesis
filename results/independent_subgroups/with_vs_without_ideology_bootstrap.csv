@@ -1,0 +1,17 @@
+subgroup,reference_config,comparison_config,metric,diff_reference_minus_comparison,ci_low,ci_high,bootstrap_p_two_sided,direction,n_bootstrap
+pure_independents,demographics+ideology,demographics_only,balanced_accuracy,0.0019749926639163196,-0.04928096404953944,0.04837490506031666,0.8396,higher_is_better,5000
+pure_independents,demographics+ideology,demographics_only,macro_f1,0.003331174770137113,-0.04640980591042001,0.048297618170319925,0.7984,higher_is_better,5000
+pure_independents,demographics+ideology,demographics_only,log_loss,-0.018802154234688784,-0.06395852920054022,0.02859570145004381,0.4356,lower_is_better,5000
+pure_independents,demographics+ideology,demographics_only,brier_score,-0.0035742226870428273,-0.018142538776609866,0.012811522178370515,0.6336,lower_is_better,5000
+pure_independents,pautas+demographics+ideology,pautas+demographics,balanced_accuracy,0.04447804556829682,0.010254892776332018,0.08763544158382225,0.0068,higher_is_better,5000
+pure_independents,pautas+demographics+ideology,pautas+demographics,macro_f1,0.04612638404009495,0.01062151601424736,0.09183526460904858,0.0068,higher_is_better,5000
+pure_independents,pautas+demographics+ideology,pautas+demographics,log_loss,-0.024054280623474034,-0.04955832617499164,0.0016489076705537965,0.0656,lower_is_better,5000
+pure_independents,pautas+demographics+ideology,pautas+demographics,brier_score,-0.010718300095970634,-0.02013382953654723,-0.0014186667577720865,0.0252,lower_is_better,5000
+independents_plus_leaners,demographics+ideology,demographics_only,balanced_accuracy,0.13752718370864625,0.09828390602340795,0.17632302371540368,0.0,higher_is_better,5000
+independents_plus_leaners,demographics+ideology,demographics_only,macro_f1,0.13755626301561885,0.09824015536502397,0.1765413196857985,0.0,higher_is_better,5000
+independents_plus_leaners,demographics+ideology,demographics_only,log_loss,-0.18298465780472906,-0.22936694095435264,-0.13643997962803323,0.0,lower_is_better,5000
+independents_plus_leaners,demographics+ideology,demographics_only,brier_score,-0.07252726203615129,-0.08943409679160443,-0.05536332811503722,0.0,lower_is_better,5000
+independents_plus_leaners,pautas+demographics+ideology,pautas+demographics,balanced_accuracy,0.007909424426724043,0.0005455426255167706,0.016958004644061407,0.032,higher_is_better,5000
+independents_plus_leaners,pautas+demographics+ideology,pautas+demographics,macro_f1,0.007814413051557612,0.00046206902064978295,0.016851634065202,0.0324,higher_is_better,5000
+independents_plus_leaners,pautas+demographics+ideology,pautas+demographics,log_loss,-0.008290678366493887,-0.017628151630389312,0.0013742767820177232,0.0944,lower_is_better,5000
+independents_plus_leaners,pautas+demographics+ideology,pautas+demographics,brier_score,-0.0026996417873130785,-0.005612350923633079,0.000203107891019677,0.0744,lower_is_better,5000

@@ -1,0 +1,7 @@
+cohort,config,stage1_predictors,stage2_model,n,n_predicted_issue_features,balanced_accuracy,macro_f1,log_loss,brier_score
+all_respondents,predicted_issues_only,demographics_only,xgb_current,4755,45,0.6734950749808781,0.673640717024789,0.6021678713593775,0.20696678674240074
+all_respondents,predicted_issues+demographics,demographics_only,xgb_current,4755,45,0.6757312922085459,0.6758294576177477,0.5976419976555128,0.20516451941195601
+all_respondents,predicted_issues+party_id+ideology,demographics_only,xgb_current,4755,45,0.9391117954127095,0.9389271164900872,0.19721338497083762,0.052942854902479186
+independents_plus_leaners,predicted_issues_only,demographics_only,xgb_current,1303,45,0.5899462703710807,0.5895905623222885,0.7039021066429069,0.2485758741483938
+independents_plus_leaners,predicted_issues+demographics,demographics_only,xgb_current,1303,45,0.590502512887221,0.5899850960726318,0.6952905090698921,0.24564633106567696
+independents_plus_leaners,predicted_issues+party_id+ideology,demographics_only,xgb_current,1303,45,0.8874575607245959,0.886889816470182,0.3109543287474207,0.08928499882180646

@@ -1,0 +1,13 @@
+cohort,config,canonical_config,encoding,delta_balanced_accuracy,delta_macro_f1,delta_log_loss,delta_brier_score
+all_respondents,political_categorical_party_id_only,party_id_only,numeric_ordinal,0.0,0.0,0.0,0.0
+all_respondents,political_categorical_party_id_only,party_id_only,political_onehot,-0.001156439383026786,-0.0012343003064528846,-0.0019103585681810864,-0.0004847659348355335
+all_respondents,political_categorical_party_id+ideology,party_id+ideology,numeric_ordinal,0.0,0.0,0.0,0.0
+all_respondents,political_categorical_party_id+ideology,party_id+ideology,political_onehot,2.5443820845572063e-05,-0.00014205476770623449,0.001365159558972262,0.00020831178551420498
+all_respondents,issues+political_categorical,issues+party_id+ideology,numeric_ordinal,0.0,0.0,0.0,0.0
+all_respondents,issues+political_categorical,issues+party_id+ideology,political_onehot,-0.005101357256103722,-0.00521819900348619,-0.0006217246863492176,0.00042806008897741665
+independents_plus_leaners,political_categorical_party_id_only,party_id_only,numeric_ordinal,0.0,0.0,0.0,0.0
+independents_plus_leaners,political_categorical_party_id_only,party_id_only,political_onehot,0.0,0.0,-9.470067159955686e-06,-1.2505791566336244e-06
+independents_plus_leaners,political_categorical_party_id+ideology,party_id+ideology,numeric_ordinal,0.0,0.0,0.0,0.0
+independents_plus_leaners,political_categorical_party_id+ideology,party_id+ideology,political_onehot,-0.0032593924319319623,-0.00319067404448492,0.011278927841805342,0.0019589095090466885
+independents_plus_leaners,issues+political_categorical,issues+party_id+ideology,numeric_ordinal,0.0,0.0,0.0,0.0
+independents_plus_leaners,issues+political_categorical,issues+party_id+ideology,political_onehot,-0.0006242035293226866,-0.000412633432072651,0.0015143859458692233,0.0006111524910956401

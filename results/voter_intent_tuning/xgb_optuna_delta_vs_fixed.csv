@@ -1,0 +1,5 @@
+cohort,config,variant,delta_balanced_accuracy,delta_macro_f1,delta_log_loss,delta_brier_score
+all_respondents,issues+party_id+ideology,fixed_300,0.0,0.0,0.0,0.0
+all_respondents,issues+party_id+ideology,optuna_xgb_balanced_accuracy,0.001056712124524073,0.0007381878725000179,0.003852131826514116,9.48106844047697e-05
+independents_plus_leaners,issues+party_id+ideology,fixed_300,0.0,0.0,0.0,0.0
+independents_plus_leaners,issues+party_id+ideology,optuna_xgb_balanced_accuracy,-0.002655114461909802,-0.002618290328324613,0.0012773765776111223,0.0004650429326478467

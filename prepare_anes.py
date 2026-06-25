@@ -17,27 +17,29 @@ RAW_CSV = Path("anes_timeseries_2024_csv_20250808/anes_timeseries_2024_csv_20250
 OUT_DIR = Path(".")
 
 # ── Column mapping: (new_name, anes_code, description, category, scale) ──────
-# Audited 2026-04-07: all 93 V-codes verified present in raw CSV.
-# Descriptions cross-checked against ANES 2024 codebook (Aug 2025 release).
+# Re-audited 2026-05-31 against the ANES 2024 codebook: the demographic block and
+# a few issue codes were mislabeled (e.g. V241507=birthplace, V241179=Harris
+# placement, V242458x=trans sports). Corrected below to match the codebook and the
+# (already-correct) pre-election script run_voter_intent_analysis.py.
 # weight_post changed from V240108a (full-sample) to V240108b (respondent weight)
 # since the pipeline uses post-election variables exclusively.
 
 VARIABLE_MAP = [
     # === DEMOGRAPHICS ===
-    ("age_group",          "V241008x",  "4-cat age group",                          "demographic", "1-4 ordinal"),
-    ("sex",                "V241006",   "Binary sex (1=Male, 2=Female)",            "demographic", "1-2 nominal"),
+    ("age_group",          "V241458x",  "Respondent age on election day (summary)", "demographic", "ordinal"),
+    ("sex",                "V241550",   "Binary sex (1=Male, 2=Female)",            "demographic", "1-2 nominal"),
     # NOTE: V241004 is actually "political attention", not gender identity.
     # The original mapping was incorrect. Gender identity is not available
     # as a separate variable in this dataset (sex covers it at V241006).
     ("race",               "V241501x",  "6-cat race/ethnicity summary",             "demographic", "1-6 nominal"),
-    ("education",          "V242458x",  "7-cat education level (post-election)",    "demographic", "1-7 ordinal"),
-    ("income_bracket",     "V241507",   "4-cat household income (low quality)",     "demographic", "1-4 ordinal"),
-    ("marital",            "V241506",   "3-cat marital status",                     "demographic", "1-3 nominal"),
-    ("employment",         "V241512x",  "7-cat employment status summary",          "demographic", "1-7 nominal"),
+    ("education",          "V241465x",  "5-cat education level",                    "demographic", "1-5 ordinal"),
+    ("income_bracket",     "V241567x",  "6-cat household income",                   "demographic", "1-6 ordinal"),
+    ("marital",            "V241461x",  "5-cat marital status",                     "demographic", "1-5 nominal"),
+    ("employment",         "V241488x",  "Occupation/employment status (1-digit)",   "demographic", "nominal"),
     ("social_class",       "V242337",   "4-cat self-reported social class",         "demographic", "1-4 ordinal"),
-    ("church_attendance",  "V241025",   "Frequency of religious attendance",        "demographic", "1-5 ordinal"),
-    ("ideology",           "V241179",   "7-pt liberal-conservative self-placement", "demographic", "1-7 ordinal"),
-    ("hispanic",           "V241502",   "Binary Hispanic indicator",               "demographic", "1-2 nominal"),
+    ("church_attendance",  "V241440",   "Frequency of religious attendance",        "demographic", "1-5 ordinal"),
+    ("ideology",           "V241177",   "7-pt liberal-conservative self-placement", "demographic", "1-7 ordinal"),
+    ("hispanic",           "V241512x",  "Hispanic origin summary",                 "demographic", "nominal"),
     ("state",              "V243001",   "State abbreviation",                       "demographic", "string"),
 
     # === ECONOMY & TAXES ===
@@ -49,10 +51,10 @@ VARIABLE_MAP = [
     ("min_wage",              "V242350",  "Should minimum wage be raised/kept/lowered",  "issue_economy", "ordinal"),
 
     # === IMMIGRATION ===
-    ("immig_level",    "V242232", "Immigration level: increase/decrease/same",   "issue_immigration", "1-3 ordinal"),
-    ("immig_policy1",  "V242235", "Immigration policy position 1",              "issue_immigration", "ordinal"),
-    ("immig_policy2",  "V242236", "Immigration policy position 2",              "issue_immigration", "ordinal"),
-    ("immig_policy3",  "V242237", "Immigration policy position 3",              "issue_immigration", "ordinal"),
+    ("immig_level",    "V242227", "Immigration level: increase/decrease/same",   "issue_immigration", "ordinal"),
+    ("immig_policy1",  "V242235", "Immigrants good or bad for economy",          "issue_immigration", "ordinal"),
+    ("immig_policy2",  "V242236", "Importance immigrants adapt to US customs",   "issue_immigration", "ordinal"),
+    ("immig_policy3",  "V242234x", "Path to citizenship (summary)",              "issue_immigration", "summary"),
 
     # === GUN CONTROL ===
     ("gun_difficulty",   "V242325",  "Should buying guns be harder/easier",      "issue_guns", "1-3 ordinal"),
@@ -63,10 +65,10 @@ VARIABLE_MAP = [
     ("climate_impact",      "V242321",  "How much climate change affects weather",        "issue_environment", "1-5 ordinal"),
     ("climate_regulation",  "V242324x", "Favor/oppose greenhouse regulation summary",     "issue_environment", "summary"),
 
-    # === ABORTION ===
-    ("abortion_access",  "V242362",  "Abortion access position (3-cat)",       "issue_abortion", "1-3 ordinal"),
-    ("abortion_scale",   "V242361x", "Abortion position summary (5-pt)",       "issue_abortion", "1-5 summary"),
-    ("abortion_detail",  "V242364x", "Abortion position detail (7-pt)",        "issue_abortion", "1-7 summary"),
+    # === ABORTION === (DROPPED 2026-05-31: the POST-election wave has no respondent
+    # abortion-POSITION variable. The codes used before (V242362, V242361x, V242364x)
+    # were mislabeled trans-military / sexual-harassment items. Only V242176 (issue
+    # importance) and V242186 (party handling) exist post-wave; neither is a position.)
 
     # === RACIAL ATTITUDES ===
     ("racial_selfhelp",   "V242300", "Blacks should work way up w/o favors",  "issue_racial", "1-5 ordinal"),
@@ -190,6 +192,12 @@ def clean_missing(df: pd.DataFrame) -> pd.DataFrame:
         neg_count = (df[col] < 0).sum()
         if neg_count > 0:
             df.loc[df[col] < 0, col] = np.nan
+
+    # Ideology self-placement (V241177) codes 99 = "haven't thought much about this";
+    # treat as missing (matches the pre-election script). Other items use only negative
+    # missing codes, already handled above.
+    if "ideology" in df.columns:
+        df.loc[df["ideology"] >= 90, "ideology"] = np.nan
 
     # Convert weight_post from string to float
     if "weight_post" in df.columns and df["weight_post"].dtype == object:

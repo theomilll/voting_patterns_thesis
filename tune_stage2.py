@@ -36,9 +36,9 @@ from xgboost import XGBClassifier
 
 from train_pipeline import (
     DEMO_COLS, DEMO_STRICT, ISSUE_COLS, N_FOLDS, OUT_DIR,
-    RANDOM_STATE, TARGET, WEIGHT_COL,
-    _run_stage1_for_outer_fold, evaluate_fold, impute_fold,
-    load_data, prepare_features,
+    PREDICTED_ISSUE_STAGE2_COLS, RANDOM_STATE, TARGET, WEIGHT_COL,
+    _run_stage1_for_outer_fold, align_sample_weights_to_target, evaluate_fold,
+    impute_fold, load_data, prepare_features, require_matching_pred_cols,
 )
 
 warnings.filterwarnings("ignore")
@@ -53,7 +53,7 @@ ALL_MODELS = ["LogisticRegression", "RandomForest", "XGBoost"]
 # Approaches & their Stage-2 feature column sets.
 # "B_predicted_issues" is handled specially (Stage 1 re-run per outer fold).
 APPROACH_FEATURES = {
-    "A_actual_issues":      DEMO_COLS + ISSUE_COLS,
+    "A_actual_issues":      DEMO_STRICT + ISSUE_COLS,
     "C_demo_with_ideology": DEMO_COLS,
     "Cs_demo_strict":       DEMO_STRICT,
     "D_party_only":         ["party_id"],
@@ -202,11 +202,7 @@ def tune_standard_approach(df, weights, approach, model_name, n_trials,
     """Outer 5-fold x inner 3-fold Optuna for a feature-column approach."""
     feat_cols = APPROACH_FEATURES[approach]
     X, y, _, _ = prepare_features(df, feat_cols, TARGET)
-
-    # Align weights to valid target rows (prepare_features drops NaN targets,
-    # but in practice TARGET is already filtered in load_data)
-    if weights is not None and len(weights) != len(y):
-        weights = weights[:len(y)]   # same filter applied upstream
+    weights = align_sample_weights_to_target(df, weights, TARGET)
 
     outer = StratifiedKFold(n_splits=N_OUTER, shuffle=True,
                             random_state=RANDOM_STATE)
@@ -267,7 +263,9 @@ def tune_approach_b(df, weights, model_name, n_trials, n_classes):
     """Outer loop rebuilds Stage 1 per fold; inner loop tunes Stage 2 params."""
     outer = StratifiedKFold(n_splits=N_OUTER, shuffle=True,
                             random_state=RANDOM_STATE)
-    X_demo, y_vote, _, _ = prepare_features(df, DEMO_COLS, TARGET)
+    X_demo, y_vote, _, _ = prepare_features(
+        df, PREDICTED_ISSUE_STAGE2_COLS, TARGET)
+    weights = align_sample_weights_to_target(df, weights, TARGET)
 
     valid_mask = df[TARGET].notna()
     valid_indices = df.index[valid_mask]
@@ -287,7 +285,9 @@ def tune_approach_b(df, weights, model_name, n_trials, n_classes):
         # Build Stage 1 predictions ONCE per outer fold (not per trial).
         train_preds, val_preds = _run_stage1_for_outer_fold(
             df_train, df_val, sample_weights_train=w_tr)
-        pred_cols = [c for c in train_preds.columns if c in val_preds.columns]
+        pred_cols = require_matching_pred_cols(
+            train_preds, val_preds, f"Tuned Approach B fold {fold_idx}"
+        )
 
         X_tr = np.column_stack([X_demo[tr], train_preds[pred_cols].values])
         X_te = np.column_stack([X_demo[te], val_preds[pred_cols].values])
