@@ -44,3 +44,4 @@ output/
 *.gsheet
 *.gslides
 *.pdf
+!README.md
